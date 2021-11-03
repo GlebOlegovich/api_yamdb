@@ -66,3 +66,26 @@ class Genre_title(models.Model):
                 name='genre_titles'
             )
         ]
+
+
+class Review(models.Model):
+    title_id = models.ForeignKey(
+        Titles, on_delete=models.CASCADE)
+    text = models.TextField()
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    pub_date = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
+
+
+class Comment(models.Model):
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='comments')
+    post = models.ForeignKey(
+        Review, on_delete=models.CASCADE, related_name='comments')
+    text = models.TextField()
+    pub_date = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
+    review_id = models.ForeignKey(
+        Titles, on_delete=models.CASCADE)
