@@ -61,7 +61,6 @@ class Genre_title(models.Model):
         return f'"{self.title}" относится к жанру : {self.genre}'
 
     class Meta:
-        
         constraints = [
             models.UniqueConstraint(
                 fields=['title_id', 'genre_id'],
