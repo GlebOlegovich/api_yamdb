@@ -25,8 +25,9 @@ class Category(models.Model):
         return self.name
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(max_length=200)
+    # Надо потом ограничения что ли наложить...
     year = models.PositiveSmallIntegerField()
     category = models.ForeignKey(
         Category,
@@ -49,7 +50,7 @@ class Genre(models.Model):
 
 class Genre_title(models.Model):
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         related_name='titles')
     genre = models.ForeignKey(
@@ -71,7 +72,7 @@ class Genre_title(models.Model):
 
 class Review(models.Model):
     title = models.ForeignKey(
-        Titles, on_delete=models.CASCADE)
+        Title, on_delete=models.CASCADE)
     text = models.TextField()
     author = models.ForeignKey(
         User, on_delete=models.CASCADE)
@@ -80,9 +81,13 @@ class Review(models.Model):
             MinValueValidator(1),
             MaxValueValidator(10)
         ]
+
     )
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
 
     class Meta:
         default_related_name = 'reviews'
@@ -95,7 +100,10 @@ class Comment(models.Model):
         User, on_delete=models.CASCADE)
     text = models.TextField()
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE)
 
