@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
 
+from authentication.views import get_token, get_or_create_user
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(
@@ -24,4 +25,9 @@ urlpatterns = [
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
     ),
+]
+
+urlpatterns += [
+    path('api/v1/auth/signup/', get_or_create_user),
+    path('api/v1/auth/token/', get_token),
 ]

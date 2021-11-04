@@ -1,20 +1,9 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from api_yamdb.settings import ROLE
 
 
-class User(AbstractUser):
-    bio = models.TextField(
-        'Биография',
-        blank=True,
-    )
-    role = models.CharField(
-        'Роль - права доступа',
-        max_length=1,
-        choices=ROLE,
-        default='user'
-    )
+User = get_user_model()
 
 
 class Category(models.Model):

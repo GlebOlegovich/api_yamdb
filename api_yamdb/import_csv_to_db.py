@@ -60,10 +60,8 @@ def read_and_write_to_DB(file, Model):
                 if index_of_date is not None:
                     time_str = row[index_of_date]
                     time_dt_obj = dt.datetime.strptime(time_str, TIME_FORMAT)
-                    print(time_dt_obj)
                     obj.pub_date = time_dt_obj
                     obj.save()
-                print(obj, done)
             count += 1
         print(f'    Добавлено {count} записей в {Model} из {file}')
 
