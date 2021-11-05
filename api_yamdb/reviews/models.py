@@ -25,6 +25,14 @@ class Category(models.Model):
         return self.name
 
 
+class Genre(models.Model):
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Titles(models.Model):
     name = models.CharField(max_length=200)
     year = models.PositiveSmallIntegerField()
@@ -34,14 +42,8 @@ class Titles(models.Model):
         on_delete=models.SET_NULL,
         blank=True,
         null=True)
-
-    def __str__(self):
-        return self.name
-
-
-class Genre(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
+    description = models.TextField(null=True)
+    genre = models.ManyToManyField(Genre, through='Genre_title')
 
     def __str__(self):
         return self.name
@@ -63,7 +65,7 @@ class Genre_title(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['title_id', 'genre_id'],
+                fields=['title', 'genre'],
                 name='genre_titles'
             )
         ]

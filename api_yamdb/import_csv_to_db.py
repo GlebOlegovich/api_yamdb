@@ -7,7 +7,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api_yamdb.settings')
 django.setup()
 # Тут перед отправкой на ревью надо будет закоментить
 # Но иначе не рабоатет, если эти импорты перенести выше
-from yamdb.models import User, Genre, Genre_title, Titles, Category
+from reviews.models import User, Genre, Genre_title, Titles, Category
 
 
 DIR_CSV = os.path.join(
