@@ -1,21 +1,23 @@
-# from rest_framework import serializers
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from .models import User
-from .validators import MyUsernameValidator
+from .validators import MyUsernameValidator, NotMeUsername
 
 
 class UsernameAndEmailObjSerialiser(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
-        validators=[MyUsernameValidator()]
+        # Тут тоже убираем, потому что в модели юзера убрали валидатор
+        # validators=[MyUsernameValidator()]
+        validators=[NotMeUsername()]
     )
     email = serializers.EmailField()
 
-    def validate_username(self, username):
-        if username.lower() == 'me':
-            raise serializers.ValidationError("'me' - недопустимое имя!")
-        return username
+    # Не знаю, как лучше, так, или как выше...
+    # def validate_username(self, username):
+    #     if username.lower() == 'me':
+    #         raise serializers.ValidationError("'me' - недопустимое имя!")
+    #     return username
 
 
 class UsernameAndEmailModelSerialiser(serializers.ModelSerializer):
@@ -32,7 +34,9 @@ class UsernameAndEmailModelSerialiser(serializers.ModelSerializer):
             raise serializers.ValidationError("'me' - недопустимое имя!")
         try:
             User.objects.get(username__iexact=username.lower())
-            raise serializers.ValidationError(f'Пользователь с ником {username} уже есть')
+            raise serializers.ValidationError(
+                f'Пользователь с ником {username} уже есть'
+            )
         except User.DoesNotExist:
             pass
         return username
@@ -40,7 +44,9 @@ class UsernameAndEmailModelSerialiser(serializers.ModelSerializer):
     def validate_email(self, email):
         try:
             User.objects.get(email__iexact=email.lower())
-            raise serializers.ValidationError(f'Пользователь с почтой {email} уже есть')
+            raise serializers.ValidationError(
+                f'Пользователь с почтой {email} уже есть'
+            )
         except User.DoesNotExist:
             pass
         return email

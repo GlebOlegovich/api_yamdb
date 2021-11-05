@@ -14,10 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.views.generic import TemplateView
 
-from authentication.views import get_token, get_or_create_user
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(
@@ -25,9 +25,12 @@ urlpatterns = [
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
     ),
-]
-
-urlpatterns += [
-    path('api/v1/auth/signup/', get_or_create_user),
-    path('api/v1/auth/token/', get_token),
+    path(
+        'api/v1/auth/',
+        include(
+            'authentication.urls',
+            namespace='authentication'
+        )
+    ),
+    path('api/', include('api.urls', namespace='urls'))
 ]

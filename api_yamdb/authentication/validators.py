@@ -16,3 +16,13 @@ class MyUsernameValidator(validators.RegexValidator):
         'numbers, and underscores. Must start with a letter.'
     )
     flags = 0
+
+
+@deconstructible
+class NotMeUsername(validators.RegexValidator):
+    """
+    Userneme != 'Me'
+    """
+    regex = r'^(?!Me$|me$|ME$|mE$).*$'
+    message = ('Userneme не может быть - Me')
+    flags = 0

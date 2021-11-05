@@ -1,14 +1,18 @@
 from rest_framework.generics import get_object_or_404
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from .models import User
-from .serializers import UsernameAndEmailModelSerialiser, UsernameAndEmailObjSerialiser, GetTokenSerialiser
+from .serializers import (UsernameAndEmailModelSerialiser,
+                          UsernameAndEmailObjSerialiser,
+                          GetTokenSerialiser)
 from .core import send_email_with_confirmation_code, account_activation_token
 from .core import get_access_token_for_user
-import json
+
 
 @api_view(['POST'])
+@permission_classes((AllowAny,))
 def get_token(request):
     serializer = GetTokenSerialiser(data=request.data)
     if serializer.is_valid():
@@ -27,10 +31,19 @@ def get_token(request):
             token = get_access_token_for_user(user)
             return Response({'token': token['access']})
         else:
-            return Response('Bad confirmation code')
+            return Response(
+                {'token': 'Неверный код подтверждения!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    else:
+        return Response(
+            {'token': 'Ваш код - невалиден!'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny,))
 def get_or_create_user(request):
     '''
         Очень вероятно, что это очень убогая вью функция))
