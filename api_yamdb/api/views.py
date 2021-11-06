@@ -1,10 +1,11 @@
-# from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews.models import Category, Titles, Genre
-# from .permissions import IsAdminOrReadOnly
-from .serializers import CategorySerializer, GenreSerializer, TitlesSerializer
+from .permissions import IsAdminOrReadOnly
+from .serializers import (CategorySerializer, GenreSerializer,
+                          OutputSerializer, InputSerializer)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -14,7 +15,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     search_fields = ('name')
     lookup_field = 'slug'
     lookup_url_kwarg = 'slug'
-    # permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
     def perform_destroy(self, instance):
         instance.delete()
@@ -27,7 +28,7 @@ class GenreViewSet(viewsets.ModelViewSet):
     search_fields = ('name')
     lookup_field = 'slug'
     lookup_url_kwarg = 'slug'
-    # permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
     def perform_destroy(self, instance):
         instance.delete()
@@ -35,5 +36,11 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
-    serializer_class = TitlesSerializer
-    # permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = (DjangoFilterBackend, )
+    filterset_fields = ('category__slug', 'genre__slug', 'name', 'year')
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return OutputSerializer
+        return InputSerializer
