@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     'rest_framework',
     'authentication',
     'api',
@@ -106,6 +107,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
+
+
+AUTH_USER_MODEL = 'authentication.User'
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 

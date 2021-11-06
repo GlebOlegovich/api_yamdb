@@ -1,12 +1,15 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, UserInfoViewSet
+from .views import CategoryViewSet, TitlesViewSet, GenreViewSet, UserViewSet, UserInfoViewSet
 
-app_name = 'urls'
+app_name = 'api'
 
 router = DefaultRouter()
+router.register('titles', TitlesViewSet, basename='titles')
+router.register('categories', CategoryViewSet, basename='categories')
+router.register('genres', GenreViewSet, basename='genres')
+router.register(r'users', UserViewSet, basename='users')
 
-router.register(r'users', UserViewSet)
 urlpatterns = [
     # Важный факт, такие адреса должны быть до подключения роутера!
     path('v1/users/me/', UserInfoViewSet.as_view()),
