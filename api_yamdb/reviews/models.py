@@ -1,8 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from api_yamdb.settings import ROLE
 
 
 User = get_user_model()
@@ -20,13 +18,12 @@ class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
-    def __str__(self):
+    def str(self):
         return self.name
 
 
 class Titles(models.Model):
     name = models.CharField(max_length=200)
-    # Надо потом ограничения что ли наложить на год...
     year = models.PositiveSmallIntegerField()
     category = models.ForeignKey(
         Category,
@@ -34,18 +31,10 @@ class Titles(models.Model):
         on_delete=models.SET_NULL,
         blank=True,
         null=True)
-
-    def __str__(self):
-        return self.name
-
-
-class Genre(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
     description = models.TextField(null=True)
     genre = models.ManyToManyField(Genre, through='Genre_title')
 
-    def __str__(self):
+    def str(self):
         return self.name
 
 
