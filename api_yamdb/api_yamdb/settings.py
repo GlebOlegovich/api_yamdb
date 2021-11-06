@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'authentication',
+    'rest_framework.authtoken',
     'api',
     'reviews',
 ]
@@ -87,6 +88,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny', 
+    ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+} 
 
 # Internationalization
 
@@ -107,11 +117,14 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 
+AUTH_USER_MODEL = 'authentication.User'
+
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
 
-AUTH_USER_MODEL = 'authentication.User'
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
