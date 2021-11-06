@@ -1,9 +1,26 @@
 from rest_framework import serializers
 import datetime as dt
-
-
+from django.contrib.auth import get_user_model
+from api_yamdb.settings import ROLE
 from reviews.models import Category, Titles, Genre
 
+User = get_user_model()
+
+class UserSerializer(serializers.ModelSerializer):
+    role = serializers.ChoiceField(choices=ROLE, default='user')
+
+    class Meta:
+        model = User
+        fields = (
+            'username', 'email', 'first_name', 'last_name',
+            'bio', 'role'
+        )
+        read_only_fields = ('role',)
+        optional_fields = ('first_name', 'last_name', 'bio', 'role')
+
+# Так делать вообще нормально?)
+class UserInfoSerializer(UserSerializer):
+    role = serializers.ChoiceField(choices=ROLE, read_only=True)
 
 class CategorySerializer(serializers.ModelSerializer):
 

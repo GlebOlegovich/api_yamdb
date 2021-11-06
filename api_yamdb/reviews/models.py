@@ -2,20 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from api_yamdb.settings import ROLE
+from django.contrib.auth import get_user_model
 
-
-class User(AbstractUser):
-    bio = models.TextField(
-        'Биография',
-        blank=True,
-    )
-    role = models.CharField(
-        'Роль - права доступа',
-        max_length=1,
-        choices=ROLE,
-        default='user'
-    )
-
+User = get_user_model()
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
@@ -35,6 +24,7 @@ class Genre(models.Model):
 
 class Titles(models.Model):
     name = models.CharField(max_length=200)
+    # Надо потом ограничения что ли наложить на год...
     year = models.PositiveSmallIntegerField()
     category = models.ForeignKey(
         Category,
@@ -84,7 +74,10 @@ class Review(models.Model):
         ]
     )
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
 
     class Meta:
         default_related_name = 'reviews'
@@ -94,12 +87,15 @@ class Review(models.Model):
 
 class Comment(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments')
+        User, on_delete=models.CASCADE)
     text = models.TextField()
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments')
+        Review, on_delete=models.CASCADE)
 
     class Meta:
         default_related_name = 'comments'
