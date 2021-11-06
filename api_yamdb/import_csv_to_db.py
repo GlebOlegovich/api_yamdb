@@ -4,8 +4,9 @@ import django
 from tqdm import tqdm
 import csv
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api_yamdb.settings')
-django.setup()
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api_yamdb.settings')
+# django.setup()
+
 # Тут перед отправкой на ревью надо будет закоментить
 # Но иначе не рабоатет, если эти импорты перенести выше
 from reviews.models import (User, Genre, Genre_title, Title,
@@ -60,10 +61,8 @@ def read_and_write_to_DB(file, Model):
                 if index_of_date is not None:
                     time_str = row[index_of_date]
                     time_dt_obj = dt.datetime.strptime(time_str, TIME_FORMAT)
-                    print(time_dt_obj)
                     obj.pub_date = time_dt_obj
                     obj.save()
-                print(obj, done)
             count += 1
         print(f'    Добавлено {count} записей в {Model} из {file}')
 

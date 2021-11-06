@@ -1,23 +1,22 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from api_yamdb.settings import ROLE
 
 
-class User(AbstractUser):
-    bio = models.TextField(
-        'Биография',
-        blank=True,
-    )
-    role = models.CharField(
-        'Роль - права доступа',
-        max_length=1,
-        choices=ROLE,
-        default='user'
-    )
+User = get_user_model()
 
 
 class Category(models.Model):
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
@@ -25,9 +24,9 @@ class Category(models.Model):
         return self.name
 
 
-class Title(models.Model):
+class Titles(models.Model):
     name = models.CharField(max_length=200)
-    # Надо потом ограничения что ли наложить...
+    # Надо потом ограничения что ли наложить на год...
     year = models.PositiveSmallIntegerField()
     category = models.ForeignKey(
         Category,
@@ -43,6 +42,8 @@ class Title(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
+    description = models.TextField(null=True)
+    genre = models.ManyToManyField(Genre, through='Genre_title')
 
     def __str__(self):
         return self.name
@@ -50,7 +51,7 @@ class Genre(models.Model):
 
 class Genre_title(models.Model):
     title = models.ForeignKey(
-        Title,
+        Titles,
         on_delete=models.CASCADE,
         related_name='titles')
     genre = models.ForeignKey(
@@ -64,7 +65,7 @@ class Genre_title(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['title_id', 'genre_id'],
+                fields=['title', 'genre'],
                 name='genre_titles'
             )
         ]
@@ -72,7 +73,7 @@ class Genre_title(models.Model):
 
 class Review(models.Model):
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE)
+        Titles, on_delete=models.CASCADE)
     text = models.TextField()
     author = models.ForeignKey(
         User, on_delete=models.CASCADE)
@@ -81,7 +82,6 @@ class Review(models.Model):
             MinValueValidator(1),
             MaxValueValidator(10)
         ]
-
     )
     pub_date = models.DateTimeField(
         'Дата добавления',
