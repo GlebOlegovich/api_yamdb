@@ -1,6 +1,11 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import CategoryViewSet, TitlesViewSet, GenreViewSet, UserViewSet, UserInfoViewSet
+from api.views import (
+    CategoryViewSet, TitlesViewSet,
+    GenreViewSet, UserViewSet, UserInfoViewSet,
+    CommentViewSet, ReViewSet
+)
+from rest_framework.authtoken import views
 
 app_name = 'api'
 
@@ -9,6 +14,11 @@ router.register('titles', TitlesViewSet, basename='titles')
 router.register('categories', CategoryViewSet, basename='categories')
 router.register('genres', GenreViewSet, basename='genres')
 router.register(r'users', UserViewSet, basename='users')
+router.register(r'titles/(?P<title_id>\d+)/reviews',
+                ReViewSet, basename='ReViewSet')
+router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
+                CommentViewSet, basename='CommentViewSet')
+
 
 urlpatterns = [
     # Важный факт, такие адреса должны быть до подключения роутера!

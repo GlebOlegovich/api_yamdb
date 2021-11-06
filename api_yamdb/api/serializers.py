@@ -2,7 +2,7 @@ from rest_framework import serializers
 import datetime as dt
 from django.contrib.auth import get_user_model
 from api_yamdb.settings import ROLE
-from reviews.models import Category, Titles, Genre
+from reviews.models import Category, Titles, Genre, Comment, Review
 
 User = get_user_model()
 
@@ -61,3 +61,19 @@ class InputSerializer(serializers.ModelSerializer):
         if not (value <= year):
             raise serializers.ValidationError('Проверьте год!')
         return value
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField()
+
+    class Meta:
+        fields = ("id", "text", "author", "score", "pub_date")
+        model = Review
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField()
+
+    class Meta:
+        fields = ("id", "text", "author", "pub_date")
+        model = Comment
