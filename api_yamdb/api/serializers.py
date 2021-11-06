@@ -6,6 +6,7 @@ from reviews.models import Category, Titles, Genre, Comment, Review
 
 User = get_user_model()
 
+
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.ChoiceField(choices=ROLE, default='user')
 
@@ -18,9 +19,11 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ('role',)
         optional_fields = ('first_name', 'last_name', 'bio', 'role')
 
+
 # Так делать вообще нормально?)
 class UserInfoSerializer(UserSerializer):
     role = serializers.ChoiceField(choices=ROLE, read_only=True)
+
 
 class CategorySerializer(serializers.ModelSerializer):
 

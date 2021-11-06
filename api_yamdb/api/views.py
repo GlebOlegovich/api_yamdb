@@ -1,10 +1,11 @@
 from rest_framework import viewsets
 from django.contrib.auth import get_user_model
-from rest_framework import filters, serializers, viewsets, status
+from rest_framework import filters, viewsets, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import get_object_or_404
 from reviews.models import Category, Titles, Genre, Comment, Review
-from .permissions import IsAdminOrReadOnly, AdminOrSuperuser
+from .permissions import (IsAdminOrReadOnly, AdminOrSuperuser,
+                          IsUserAnonModerAdmin)
 from .serializers import (CategorySerializer, GenreSerializer,
                           OutputSerializer, InputSerializer,
                           UserSerializer, UserInfoSerializer,
@@ -15,6 +16,7 @@ from rest_framework.pagination import PageNumberPagination
 
 
 User = get_user_model()
+
 
 class MyPagination(PageNumberPagination):
     page_size = 4
@@ -98,15 +100,16 @@ class ReViewSet(viewsets.ModelViewSet):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
 
     def _get_title(self):
-        return get_object_or_404(Title, id=self.kwargs['title_id'])
+        return get_object_or_404(Titles, id=self.kwargs['title_id'])
 
     def get_queryset(self):
         title = self._get_title().id
         return Review.objects.filter(title=title)
-    
+
     def perform_create(self, serializer):
         title = self._get_title()
-        return serializer.save(author=self.request.user, title = title)
+        return serializer.save(author=self.request.user, title=title)
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsUserAnonModerAdmin]
@@ -117,9 +120,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
 
     def get_queryset(self):
-        review_id= self._get_review().id
+        review_id = self._get_review().id
         return Comment.objects.filter(review_id=review_id)
-    
+
     def perform_create(self, serializer):
         review = self._get_review()
-        return serializer.save(author=self.request.user, review = review)
+        return serializer.save(author=self.request.user, review=review)
