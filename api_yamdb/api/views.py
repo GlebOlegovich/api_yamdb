@@ -56,11 +56,12 @@ class UserInfoViewSet(APIView):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = MyPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name')
+    search_fields = ('name',)
     lookup_field = 'slug'
     lookup_url_kwarg = 'slug'
-    permission_classes = [IsAdminOrReadOnly]
 
     def perform_destroy(self, instance):
         instance.delete()
@@ -69,11 +70,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = MyPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name')
+    search_fields = ('name',)
     lookup_field = 'slug'
     lookup_url_kwarg = 'slug'
-    permission_classes = [IsAdminOrReadOnly]
 
     def perform_destroy(self, instance):
         instance.delete()
