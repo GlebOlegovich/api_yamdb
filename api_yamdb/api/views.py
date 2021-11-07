@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import filters, viewsets, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import get_object_or_404
-from reviews.models import Category, Titles, Genre, Comment, Review
+from reviews.models import Category, Title, Genre, Comment, Review
 from .permissions import (IsAdminOrReadOnly, AdminOrSuperuser,
                           IsUserAnonModerAdmin)
 from .serializers import (CategorySerializer, GenreSerializer,
@@ -13,7 +13,7 @@ from .serializers import (CategorySerializer, GenreSerializer,
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-
+from .filters import TitleFilter
 
 User = get_user_model()
 
@@ -82,10 +82,12 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Titles.objects.all()
+    queryset = Title.objects.all()
     permission_classes = [IsAdminOrReadOnly]
+    pagination_class = MyPagination
     filter_backends = (DjangoFilterBackend, )
-    filterset_fields = ('category__slug', 'genre__slug', 'name', 'year')
+    filterset_fields = ('name', 'year', 'category', 'genre')
+    filter_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -102,7 +104,7 @@ class ReViewSet(viewsets.ModelViewSet):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
 
     def _get_title(self):
-        return get_object_or_404(Titles, id=self.kwargs['title_id'])
+        return get_object_or_404(Title, id=self.kwargs['title_id'])
 
     def get_queryset(self):
         title = self._get_title().id
