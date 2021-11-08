@@ -2,7 +2,8 @@ from rest_framework import serializers
 import datetime as dt
 from django.contrib.auth import get_user_model
 from api_yamdb.settings import ROLE
-from reviews.models import Category, Titles, Genre, Comment, Review
+from reviews.models import Category, Title, Genre, Comment, Review
+
 
 User = get_user_model()
 
@@ -44,7 +45,7 @@ class OutputSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True, many=True)
 
     class Meta:
-        model = Titles
+        model = Title
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
 
 
@@ -56,7 +57,7 @@ class InputSerializer(serializers.ModelSerializer):
                                             queryset=Category.objects.all())
 
     class Meta:
-        model = Titles
+        model = Title
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
 
     def validate_year(self, value):
