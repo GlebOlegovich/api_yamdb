@@ -1,11 +1,11 @@
 import os
 import datetime as dt
-import django
+# import django
 from tqdm import tqdm
 import csv
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api_yamdb.settings')
-django.setup()
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api_yamdb.settings')
+# django.setup()
 
 # Тут перед отправкой на ревью надо будет закоментить
 # Но иначе не рабоатет, если эти импорты перенести выше
