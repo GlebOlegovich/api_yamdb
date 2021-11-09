@@ -40,4 +40,4 @@ class IsUserAnonModerAdmin(permissions.BasePermission):
                 or request.user == obj.author
             )
             return (safe or (authenticated and admin_or_author))
-        return False
+        return safe
