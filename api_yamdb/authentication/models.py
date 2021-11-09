@@ -41,12 +41,3 @@ class User(AbstractUser):
         # Странно, я думал по дефолту они сортятся по id, но когда
         # пагинацию накинул - выдало, что неотсортированно
         ordering = ['id']
-
-
-# class ConfirmationCodeOfUser(models.Model):
-#     user = models.ForeignKey(
-#         User,
-#         on_delete=models.CASCADE,
-#         unique=True,
-#         related_name='confirmation_code')
-#     confirmation_code = models.CharField(max_length=200, blank=True)

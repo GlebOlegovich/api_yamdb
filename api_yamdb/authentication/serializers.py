@@ -54,15 +54,6 @@ class UsernameAndEmailModelSerialiser(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email')
-        # Пока что не оч понял, какая нам уникальность нужна, осталю
-        # уникальнымипо отдельности пока что, по идее - так
-        # validators = [
-        #     UniqueTogetherValidator(
-        #         queryset=model.objects.all(),
-        #         fields=('username', 'email'),
-        #         message='Пользователь с такими данными уже заресистирован'
-        #     )
-        # ]
 
 
 class GetTokenSerialiser(serializers.Serializer):

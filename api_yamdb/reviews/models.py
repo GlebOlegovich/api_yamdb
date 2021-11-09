@@ -12,6 +12,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['id']
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=200)
@@ -20,8 +23,11 @@ class Genre(models.Model):
     def str(self):
         return self.name
 
+    class Meta:
+        ordering = ['id']
 
-class Titles(models.Model):
+
+class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.PositiveSmallIntegerField()
     category = models.ForeignKey(
@@ -36,10 +42,13 @@ class Titles(models.Model):
     def str(self):
         return self.name
 
+    class Meta:
+        ordering = ['id']
+
 
 class Genre_title(models.Model):
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         related_name='titles')
     genre = models.ForeignKey(
@@ -51,6 +60,7 @@ class Genre_title(models.Model):
         return f'"{self.title}" относится к жанру : {self.genre}'
 
     class Meta:
+        ordering = ['id']
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'genre'],
@@ -61,7 +71,7 @@ class Genre_title(models.Model):
 
 class Review(models.Model):
     title = models.ForeignKey(
-        Titles, on_delete=models.CASCADE)
+        Title, on_delete=models.CASCADE)
     text = models.TextField()
     author = models.ForeignKey(
         User, on_delete=models.CASCADE)
@@ -78,6 +88,7 @@ class Review(models.Model):
     )
 
     class Meta:
+        ordering = ['id']
         default_related_name = 'reviews'
         verbose_name_plural = 'Отзывы'
         verbose_name = 'Отзыв'
@@ -100,6 +111,7 @@ class Comment(models.Model):
         Review, on_delete=models.CASCADE)
 
     class Meta:
+        ordering = ['id']
         default_related_name = 'comments'
         verbose_name_plural = 'Коментарии к отзывам'
         verbose_name = 'Коментарий к отзыву'
