@@ -13,6 +13,7 @@ from .serializers import (CategorySerializer, GenreSerializer,
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from django.db.models import Avg
 from .filters import TitleFilter
 
 User = get_user_model()
@@ -120,6 +121,7 @@ class ReViewSet(viewsets.ModelViewSet):
     permission_classes = [IsUserAnonModerAdmin]
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    pagination_class = MyPagination
 
     def _get_review(self):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
@@ -128,7 +130,7 @@ class ReViewSet(viewsets.ModelViewSet):
         return get_object_or_404(Title, id=self.kwargs['title_id'])
 
     def get_queryset(self):
-        title = self._get_title().id
+        title = self._get_title()
         return Review.objects.filter(title=title)
 
     def perform_create(self, serializer):
@@ -140,6 +142,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsUserAnonModerAdmin]
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    pagination_class = MyPagination
 
     def _get_review(self):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
@@ -150,4 +153,5 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         review = self._get_review()
-        return serializer.save(author=self.request.user, review=review)
+        author = get_object_or_404(User, username=self.request.user)
+        return serializer.save(author=author, review=review)

@@ -1,4 +1,6 @@
 from rest_framework import permissions
+from rest_framework import status
+from rest_framework.response import Response
 
 ADMIN = 'admin'
 
@@ -27,21 +29,16 @@ class AdminOrSuperuser(permissions.BasePermission):
 
 
 class IsUserAnonModerAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return (request.method in permissions.SAFE_METHODS
+                or request.user.is_authenticated)
 
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        if request.method == 'POST' or request.method == 'DELETE':
-            return obj.author == request.user
-        if request.method == 'PATCH':
-            if obj.author == request.user:
-                return True
-            if request.user.is_authenticated:
-                if (
-                    request.user.role == 'admin'
-                    or request.user.role == 'moderator'
-                ):
-                    return True
-                return False
-            return False
-        return False
+        if request.method == "DELETE":
+            if request.user == obj.author:
+                return (True, status.HTTP_403_FORBIDDEN)
+            if request.user.role == 'admin' or request.user.role == 'moderator' or request.user.is_superuser:
+                return (True, status.HTTP_204_NO_CONTENT)
+        return (request.method in permissions.SAFE_METHODS
+                or (request.user.is_authenticated
+                    and request.user.role == 'admin' or request.user == obj.author))
