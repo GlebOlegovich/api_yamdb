@@ -1,4 +1,4 @@
-from rest_framework import permissions
+from rest_framework import permissions, status
 
 ADMIN = 'admin'
 
@@ -32,6 +32,11 @@ class IsUserAnonModerAdmin(permissions.BasePermission):
                 or request.user.is_authenticated)
 
     def has_object_permission(self, request, view, obj):
+        if request.method == "DELETE":
+            if request.user == obj.author:
+                return (True, status.HTTP_403_FORBIDDEN)
+            if request.user.role == 'admin' or request.user.role == 'moderator' or request.user.is_superuser:
+                return (True, status.HTTP_204_NO_CONTENT)
         safe = request.method in permissions.SAFE_METHODS
         authenticated = request.user.is_authenticated
         if request.user.is_authenticated:
@@ -41,3 +46,4 @@ class IsUserAnonModerAdmin(permissions.BasePermission):
             )
             return (safe or (authenticated and admin_or_author))
         return safe
+

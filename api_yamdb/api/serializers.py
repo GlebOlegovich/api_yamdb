@@ -2,7 +2,7 @@ from rest_framework import serializers
 import datetime as dt
 from django.contrib.auth import get_user_model
 from api_yamdb.settings import ROLE
-from reviews.models import Category, Title, Genre, Comment, Review
+from reviews.models import Category, Titles, Genre, Comment, Review
 from django.db.models import Avg
 
 User = get_user_model()
@@ -46,7 +46,7 @@ class OutputSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField('get_status')
 
     class Meta:
-        model = Title
+        model = Titles
         fields = (
             'id', 'name', 'year', 'description',
             'genre', 'category', 'rating'
@@ -71,7 +71,7 @@ class InputSerializer(serializers.ModelSerializer):
                                             queryset=Category.objects.all())
 
     class Meta:
-        model = Title
+        model = Titles
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
 
     def validate_year(self, value):
