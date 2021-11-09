@@ -24,3 +24,4 @@ tqdm==4.62.3
 urllib3==1.26.7
 djangorestframework-simplejwt==4.7.2
 PyJWT==2.1.0
+django-debug-toolbar==3.2.2
