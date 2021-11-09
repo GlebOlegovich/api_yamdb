@@ -34,8 +34,10 @@ class IsUserAnonModerAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         safe = request.method in permissions.SAFE_METHODS
         authenticated = request.user.is_authenticated
-        admin_or_author = (
-            request.user.role == 'admin'
-            or request.user == obj.author
-        )
-        return (safe or (authenticated and admin_or_author))
+        if request.user.is_authenticated:
+            admin_or_author = (
+                request.user.role == 'admin'
+                or request.user == obj.author
+            )
+            return (safe or (authenticated and admin_or_author))
+        return False
