@@ -13,7 +13,6 @@ from .serializers import (CategorySerializer, GenreSerializer,
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from django.db.models import Avg
 from .filters import TitleFilter
 
 User = get_user_model()
