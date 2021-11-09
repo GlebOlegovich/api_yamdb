@@ -1,6 +1,6 @@
 from rest_framework import permissions
 from rest_framework import status
-from rest_framework.response import Response
+# from rest_framework.response import Response
 
 ADMIN = 'admin'
 
@@ -37,8 +37,16 @@ class IsUserAnonModerAdmin(permissions.BasePermission):
         if request.method == "DELETE":
             if request.user == obj.author:
                 return (True, status.HTTP_403_FORBIDDEN)
-            if request.user.role == 'admin' or request.user.role == 'moderator' or request.user.is_superuser:
+            if (
+                request.user.role == 'admin'
+                or request.user.role == 'moderator'
+                or request.user.is_superuser
+            ):
                 return (True, status.HTTP_204_NO_CONTENT)
-        return (request.method in permissions.SAFE_METHODS
-                or (request.user.is_authenticated
-                    and request.user.role == 'admin' or request.user == obj.author))
+        safe = request.method in permissions.SAFE_METHODS
+        authenticated = request.user.is_authenticated
+        admin_or_author = (
+            request.user.role == 'admin'
+            or request.user == obj.author
+        )
+        return (safe or (authenticated and admin_or_author))

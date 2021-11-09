@@ -1,8 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.core.exceptions import ValidationError
-
 
 User = get_user_model()
 
@@ -79,8 +77,6 @@ class Review(models.Model):
         db_index=True
     )
 
-    
-
     class Meta:
         default_related_name = 'reviews'
         verbose_name_plural = 'Отзывы'
@@ -89,7 +85,6 @@ class Review(models.Model):
             models.UniqueConstraint(fields=['title', 'author'],
                                     name='unique_field')
         ]
-
 
 
 class Comment(models.Model):
