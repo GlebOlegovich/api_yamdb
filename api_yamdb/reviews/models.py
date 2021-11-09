@@ -89,7 +89,6 @@ class Review(models.Model):
 
     class Meta:
         ordering = ['id']
-        default_related_name = 'reviews'
         verbose_name_plural = 'Отзывы'
         verbose_name = 'Отзыв'
         constraints = [
