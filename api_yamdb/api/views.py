@@ -66,31 +66,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.delete()
 
-    def retrieve(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-        except Exception:
-            instance = None
-        serializer = CategorySerializer(instance)
-        if instance is None:
-            return Response(serializer.data,
-                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def update(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-        except Exception:
-            instance = None
-        serializer = CategorySerializer(instance, data=request.data,
-                                        partial=True)
-        if instance is None:
-            return Response(None,
-                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        serializer.is_valid(raise_exception=False)
-        self.perform_update(serializer)
-        return Response(serializer.data)
-
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
@@ -109,23 +84,19 @@ class GenreViewSet(viewsets.ModelViewSet):
         try:
             instance = self.get_object()
         except Exception:
-            instance = None
-        serializer = GenreSerializer(instance)
-        if instance is None:
-            return Response(serializer.data,
+            return Response(None,
                             status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        serializer = GenreSerializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
         except Exception:
-            instance = None
-        serializer = GenreSerializer(instance, data=request.data,
-                                     partial=True)
-        if instance is None:
             return Response(None,
                             status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        serializer = GenreSerializer(instance, data=request.data,
+                                     partial=True)
         serializer.is_valid(raise_exception=False)
         self.perform_update(serializer)
         return Response(serializer.data)
