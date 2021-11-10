@@ -1,9 +1,11 @@
-from rest_framework import serializers
 import datetime as dt
+
 from django.contrib.auth import get_user_model
-from api_yamdb.settings import ROLE
-from reviews.models import Category, Title, Genre, Comment, Review
 from django.db.models import Avg
+from rest_framework import serializers
+
+from api_yamdb.settings import ROLE
+from reviews.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
 

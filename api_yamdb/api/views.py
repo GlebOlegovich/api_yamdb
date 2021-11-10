@@ -1,19 +1,19 @@
-from rest_framework import viewsets
 from django.contrib.auth import get_user_model
-from rest_framework import filters, viewsets, status
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status, viewsets
 from rest_framework.generics import get_object_or_404
-from reviews.models import Category, Title, Genre, Comment, Review
-from .permissions import (IsAdminOrReadOnly, AdminOrSuperuser,
-                          IsUserAnonModerAdmin)
-from .serializers import (CategorySerializer, GenreSerializer,
-                          OutputSerializer, InputSerializer,
-                          UserSerializer, UserInfoSerializer,
-                          ReviewSerializer, CommentSerializer)
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from reviews.models import Category, Comment, Genre, Review, Title
+
 from .filters import TitleFilter
+from .permissions import (AdminOrSuperuser, IsAdminOrReadOnly,
+                          IsUserAnonModerAdmin)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, InputSerializer, OutputSerializer,
+                          ReviewSerializer, UserInfoSerializer, UserSerializer)
 
 User = get_user_model()
 
