@@ -58,8 +58,7 @@ class OutputSerializer(serializers.ModelSerializer):
         )
         rating = dict.get('score__avg')
         if rating == 0:
-            rating = 'None'
-            return rating
+            return 'Оценок, пока что, нету...'
         return rating
 
 
