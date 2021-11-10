@@ -1,14 +1,20 @@
 from rest_framework import permissions, status
 
 ADMIN = 'admin'
+MODERATOR = 'moderator'
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        return (request.method in permissions.SAFE_METHODS
-                or (request.user.is_authenticated
-                    and request.user.role == ADMIN))
+        safe = request.method in permissions.SAFE_METHODS
+        if request.user.is_authenticated:
+            admin_or_superuser = (
+                request.user.role == ADMIN
+                or request.user.is_superuser
+            )
+            return(safe or admin_or_superuser)
+        return(safe)
 
 
 class ReadOnly(permissions.BasePermission):
@@ -36,17 +42,17 @@ class IsUserAnonModerAdmin(permissions.BasePermission):
             if request.user == obj.author:
                 return (True, status.HTTP_403_FORBIDDEN)
             if (
-                request.user.role == 'admin'
-                or request.user.role == 'moderator'
+                request.user.role == ADMIN
+                or request.user.role == MODERATOR
                 or request.user.is_superuser
             ):
                 return (True, status.HTTP_204_NO_CONTENT)
         safe = request.method in permissions.SAFE_METHODS
-        authenticated = request.user.is_authenticated
         if request.user.is_authenticated:
             admin_or_author = (
                 request.user.role == 'admin'
                 or request.user == obj.author
+                or request.user.is_superuser
             )
-            return (safe or (authenticated and admin_or_author))
+            return (safe or admin_or_author)
         return safe

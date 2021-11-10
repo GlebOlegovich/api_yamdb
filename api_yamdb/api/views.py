@@ -103,14 +103,14 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    # Тут еще ругается на подсчет рейтинга... как то надо виксить
-    queryset = Title.objects.select_related('category').prefetch_related('genre').all()
+    # Тут еще ругается на подсчет рейтинга... как то надо фиксить
+    # Но, я хз как... @ Godleib
+    queryset = Title.objects.select_related(
+        'category').prefetch_related('genre').all()
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = MyPagination
     filter_backends = (DjangoFilterBackend, )
     filterset_fields = ('name', 'year', 'category', 'genre')
-    # Было
-    # filter_class = TitleFilter
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
@@ -129,10 +129,8 @@ class ReViewSet(viewsets.ModelViewSet):
         return get_object_or_404(Title, id=self.kwargs['title_id'])
 
     def get_queryset(self):
-        # Оптимизация
-        #title = self._get_title()
-        # return Review.objects.filter(title=title)
-        return Review.objects.filter(title__id=self.kwargs['title_id']).select_related('author')
+        return Review.objects.filter(
+            title__id=self.kwargs['title_id']).select_related('author')
 
     def perform_create(self, serializer):
         title = self._get_title()
@@ -149,7 +147,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
 
     def get_queryset(self):
-        # review_id = self._get_review().id
         return Comment.objects.filter(review__id=self.kwargs['review_id'])
 
     def perform_create(self, serializer):

@@ -133,6 +133,8 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # Убрал это, что бы не сохранялось в кукис токены
+        # 'rest_framework.authentication.SessionAuthentication',
     ),
 }
 ROLE = (
@@ -145,7 +147,7 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-# Все настройки SMPL_JWT - дефолтные, потому удалю что не надо
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1200),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
