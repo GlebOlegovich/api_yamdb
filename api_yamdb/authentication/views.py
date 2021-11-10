@@ -1,14 +1,14 @@
-from rest_framework.generics import get_object_or_404
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
-from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+
+from .core import (account_activation_token, get_access_token_for_user,
+                   send_email_with_confirmation_code)
 from .models import User
-from .serializers import (UsernameAndEmailModelSerialiser,
-                          UsernameAndEmailObjSerialiser,
-                          GetTokenSerialiser)
-from .core import send_email_with_confirmation_code, account_activation_token
-from .core import get_access_token_for_user
+from .serializers import (GetTokenSerialiser, UsernameAndEmailModelSerialiser,
+                          UsernameAndEmailObjSerialiser)
 
 
 @api_view(['POST'])

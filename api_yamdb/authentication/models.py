@@ -1,8 +1,10 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
-from api_yamdb.settings import ROLE
-from .validators import MyUsernameValidator, NotMeUsername
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.db import models
+
+from api_yamdb.settings import ROLE
+
+from .validators import MyUsernameValidator, NotMeUsername
 
 
 class User(AbstractUser):
