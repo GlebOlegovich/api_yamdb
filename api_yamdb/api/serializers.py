@@ -19,7 +19,6 @@ class UserSerializer(serializers.ModelSerializer):
             'username', 'email', 'first_name', 'last_name',
             'bio', 'role'
         )
-        read_only_fields = ('role',)
         optional_fields = ('first_name', 'last_name', 'bio', 'role')
 
 

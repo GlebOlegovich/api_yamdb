@@ -8,6 +8,7 @@ from .validators import MyUsernameValidator, NotMeUsername
 
 
 class User(AbstractUser):
+    ADMIN = 'admin'
     # Это я хотел, что бы ники были только в нижнем регистре
     # Пытался сделать, что бы ники Nik и nik были бы одним и тем же юзером
     # Но в тестах Test_User ник, так что для тестов оставим как в оригинале
@@ -38,6 +39,9 @@ class User(AbstractUser):
         choices=ROLE,
         default='user'
     )
+
+    def _is_admin_or_superuser(self):
+        return self.role == self.ADMIN or self.is_superuser
 
     class Meta:
         # Странно, я думал по дефолту они сортятся по id, но когда
