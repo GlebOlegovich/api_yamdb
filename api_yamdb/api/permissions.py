@@ -13,8 +13,8 @@ class IsAdminOrReadOnly(permissions.BasePermission):
                 request.user.role == ADMIN
                 or request.user.is_superuser
             )
-            return(safe or admin_or_superuser)
-        return(safe)
+            return safe or admin_or_superuser
+        return safe
 
 
 class ReadOnly(permissions.BasePermission):
@@ -54,5 +54,5 @@ class IsUserAnonModerAdmin(permissions.BasePermission):
                 or request.user == obj.author
                 or request.user.is_superuser
             )
-            return (safe or admin_or_author)
+            return safe or admin_or_author
         return safe

@@ -1,4 +1,4 @@
-import datetime as dt
+from django.utils import timezone
 
 from django.contrib.auth import get_user_model
 from django.db.models import Avg
@@ -32,17 +32,17 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('name', 'slug')
+        exclude = ['id']
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = ('name', 'slug')
+        exclude = ['id']
 
 
-class OutputSerializer(serializers.ModelSerializer):
+class OutputTitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(read_only=True, many=True)
     rating = serializers.SerializerMethodField('get_status')
@@ -64,7 +64,7 @@ class OutputSerializer(serializers.ModelSerializer):
         return rating
 
 
-class InputSerializer(serializers.ModelSerializer):
+class InputTitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(slug_field='slug',
                                          queryset=Genre.objects.all(),
                                          many=True)
@@ -76,7 +76,7 @@ class InputSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
 
     def validate_year(self, value):
-        year = dt.date.today().year
+        year = timezone.now().year
         if not (value <= year):
             raise serializers.ValidationError('Проверьте год!')
         return value

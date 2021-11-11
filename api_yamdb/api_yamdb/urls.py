@@ -8,8 +8,7 @@ urlpatterns = [
     path('api/', include('api.urls', namespace='urls')),
     path(
         'redoc/',
-        TemplateView.as_view(template_name='redoc.html'),
-        name='redoc'
+        TemplateView.as_view(template_name='redoc.html')
     ),
     path(
         'api/v1/auth/',
