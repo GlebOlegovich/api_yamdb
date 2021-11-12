@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -137,16 +138,10 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.SessionAuthentication',
     ),
 }
-ROLE = (
-    ('moderator', 'moderator'),
-    ('user', 'user'),
-    ('admin', 'admin'),
-)
 
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
-
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1200),
@@ -178,3 +173,18 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+GLOBAL_SETTINGS = {
+    'OUR_EMAIL': 'from@example.com',
+    'ROLE': (
+        # то как в БД / То, как видят при выборе
+        ('moderator', 'Модератор'),
+        ('user', 'Юзер'),
+        ('admin', 'Админ'),
+    ),
+    'admin': 'admin',
+    'moderator': 'moderator',
+    'user': 'user',
+}
+# Я хз как еще)) Походу я пень)
+ROLE = GLOBAL_SETTINGS['ROLE']
