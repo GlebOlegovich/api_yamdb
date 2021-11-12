@@ -73,7 +73,7 @@ def get_or_create_user(request):
         print(f'Принт из вью {user}')
 
     print(request.data)
-    # send_email_with_confirmation_code(
-    #     user,
-    #     account_activation_token.make_token(user))
+    send_email_with_confirmation_code(
+        user,
+        account_activation_token.make_token(user))
     return Response(request.data)
