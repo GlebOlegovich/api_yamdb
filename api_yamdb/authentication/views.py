@@ -15,17 +15,16 @@ from .serializers import (GetTokenSerialiser, UsernameAndEmailModelSerialiser,
 @permission_classes((AllowAny,))
 def get_token(request):
     serializer = GetTokenSerialiser(data=request.data)
-    if serializer.is_valid():
-        valid_date = dict(serializer.validated_data)
+    if serializer.is_valid(raise_exception=True):
+        valid_data = dict(serializer.validated_data)
         user = get_object_or_404(
             User,
-            username__iexact=valid_date['username'].lower()
+            username__iexact=valid_data['username'].lower()
         )
         if (
-            user is not None
-            and account_activation_token.check_token(
+            account_activation_token.check_token(
                 user=user,
-                token=valid_date['confirmation_code']
+                token=valid_data['confirmation_code']
             )
         ):
             token = get_access_token_for_user(user)
@@ -35,11 +34,6 @@ def get_token(request):
                 {'token': 'Неверный код подтверждения!'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-    else:
-        return Response(
-            {'token': 'Ваш код - невалиден!'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
 
 
 @api_view(['POST'])
@@ -49,26 +43,37 @@ def get_or_create_user(request):
         Очень вероятно, что это очень убогая вью функция))
     '''
     obj_serializer = UsernameAndEmailObjSerialiser(data=request.data)
-    if not obj_serializer.is_valid():
-        return Response(
-            obj_serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+    obj_serializer.is_valid(raise_exception=True)
+
     try:
-        user = User.objects.get(**obj_serializer.validated_data)
+        # Делал так, на случай, ну мало ли, у нас будет
+        # косяк и ник будет не уникальным, так хоть
+        # еще по email найдем того самого)))
+        # user = User.objects.get(**obj_serializer.validated_data)
+
+        # Тут два варика или искать по юзернейму и потом проводить
+        # сериализацию данных, что бы email был уникальным,
+        # НОВАЯ ЗАПИСЬ НЕ СОЗДАЕТСЯ, но ответ 200
+        # (возвращаем то что нам дали на вход), а не 400...
+        user = User.objects.get(
+            username=obj_serializer.validated_data['username']
+        )
+        if user.email != request.data['email']:
+            raise User.DoesNotExist
+        # model_obj_serializer = UsernameAndEmailModelSerialiser(
+        #     data=request.data
+        # )
+        # model_obj_serializer.is_valid(raise_exception=True)
     except User.DoesNotExist:
-        # я хз, как еще, кроме, как в модели наложить уникальность на email
         model_obj_serializer = UsernameAndEmailModelSerialiser(
             data=request.data
         )
-        if not model_obj_serializer.is_valid():
-            return Response(
-                model_obj_serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        model_obj_serializer.is_valid(raise_exception=True)
         user = model_obj_serializer.save()
-    print(user)
-    send_email_with_confirmation_code(
-        user,
-        account_activation_token.make_token(user))
+        print(f'Принт из вью {user}')
+
+    print(request.data)
+    # send_email_with_confirmation_code(
+    #     user,
+    #     account_activation_token.make_token(user))
     return Response(request.data)
