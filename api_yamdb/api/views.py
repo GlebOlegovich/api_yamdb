@@ -1,19 +1,21 @@
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, status, viewsets
+from rest_framework import filters, status, viewsets, mixins
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from reviews.models import Category, Comment, Genre, Review, Title
 
+from reviews.models import Category, Comment, Genre, Review, Title
 from .filters import TitleFilter
 from .permissions import (AdminOrSuperuser, IsAdminOrReadOnly,
                           IsUserAnonModerAdmin)
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, InputSerializer, OutputSerializer,
-                          ReviewSerializer, UserInfoSerializer, UserSerializer)
+                          GenreSerializer, InputTitleSerializer,
+                          OutputTitleSerializer, ReviewSerializer,
+                          UserInfoSerializer, UserSerializer)
 
 User = get_user_model()
 
@@ -53,6 +55,7 @@ class UserInfoViewSet(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@action(detail=True, methods=['GET', 'POST', 'DEL', 'PATCH'])
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -63,11 +66,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     lookup_url_kwarg = 'slug'
 
-    def perform_destroy(self, instance):
-        instance.delete()
 
-
-class GenreViewSet(viewsets.ModelViewSet):
+@action(detail=True, methods=['LIST', 'POST', 'DEL'])
+class GenreViewSet(mixins.ListModelMixin,
+                   mixins.CreateModelMixin,
+                   mixins.DestroyModelMixin,
+                   viewsets.GenericViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly]
@@ -76,30 +80,6 @@ class GenreViewSet(viewsets.ModelViewSet):
     search_fields = ('name',)
     lookup_field = 'slug'
     lookup_url_kwarg = 'slug'
-
-    def perform_destroy(self, instance):
-        instance.delete()
-
-    def retrieve(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-        except Exception:
-            return Response(None,
-                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        serializer = GenreSerializer(instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def update(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-        except Exception:
-            return Response(None,
-                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        serializer = GenreSerializer(instance, data=request.data,
-                                     partial=True)
-        serializer.is_valid(raise_exception=False)
-        self.perform_update(serializer)
-        return Response(serializer.data)
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
@@ -115,8 +95,8 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
-            return OutputSerializer
-        return InputSerializer
+            return OutputTitleSerializer
+        return InputTitleSerializer
 
 
 class ReViewSet(viewsets.ModelViewSet):
