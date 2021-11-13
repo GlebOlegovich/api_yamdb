@@ -26,7 +26,7 @@ class AdminOrSuperuser(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             # Вот пример
-            return request.user._is_admin_or_superuser
+            return request.user._is_admin
         return False
 
 

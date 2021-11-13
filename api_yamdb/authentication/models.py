@@ -39,12 +39,12 @@ class User(AbstractUser):
     )
 
     @property
-    def _is_admin_or_superuser(self):
+    def _is_admin(self):
         return self.role == GLOBAL_SETTINGS['admin'] or self.is_superuser
 
     @property
     def _is_moderator(self):
-        return self.role == GLOBAL_SETTINGS['moderator']
+        return self.role == GLOBAL_SETTINGS['moderator'] or self.is_superuser
 
     class Meta:
         ordering = ['id']
