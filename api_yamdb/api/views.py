@@ -1,11 +1,10 @@
 from django.contrib.auth import get_user_model
+from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.views import APIView
-
+from rest_framework.permissions import IsAuthenticated
 from reviews.models import Category, Comment, Genre, Review, Title
 
 from .filters import TitleFilter
@@ -14,12 +13,9 @@ from .permissions import (AdminOrSuperuser, IsAdminOrReadOnly,
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, InputSerializer, OutputSerializer,
                           ReviewSerializer, UserInfoSerializer, UserSerializer)
+from .paginators import FourPerPagePagination
 
 User = get_user_model()
-
-
-class MyPagination(PageNumberPagination):
-    page_size = 4
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -29,35 +25,37 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'username'
     serializer_class = UserSerializer
     permission_classes = (AdminOrSuperuser,)
-    pagination_class = MyPagination
+    pagination_class = FourPerPagePagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
 
-
-class UserInfoViewSet(APIView):
-    def get(self, request):
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        serializer_class=UserInfoSerializer,
+        permission_classes=[IsAuthenticated],
+    )
+    def me(self, request):
         user = request.user
-        serializer = UserInfoSerializer(user)
-        return Response(serializer.data)
+        if request.method == 'GET':
+            serializer = self.get_serializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def patch(self, request):
-        serializer = UserInfoSerializer(
-            request.user,
+        serializer = self.get_serializer(
+            user,
             data=request.data,
             partial=True
         )
-        if serializer.is_valid():
-            tmp = serializer.save()
-            print(tmp)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
-    pagination_class = MyPagination
+    pagination_class = FourPerPagePagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -71,7 +69,7 @@ class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly]
-    pagination_class = MyPagination
+    pagination_class = FourPerPagePagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -108,7 +106,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.select_related(
         'category').prefetch_related('genre').all()
     permission_classes = [IsAdminOrReadOnly]
-    pagination_class = MyPagination
+    pagination_class = FourPerPagePagination
     filter_backends = (DjangoFilterBackend, )
     filterset_fields = ('name', 'year', 'category', 'genre')
     filterset_class = TitleFilter
@@ -123,7 +121,7 @@ class ReViewSet(viewsets.ModelViewSet):
     permission_classes = [IsUserAnonModerAdmin]
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    pagination_class = MyPagination
+    pagination_class = FourPerPagePagination
 
     def _get_title(self):
         return get_object_or_404(Title, id=self.kwargs['title_id'])
@@ -141,7 +139,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsUserAnonModerAdmin]
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    pagination_class = MyPagination
+    pagination_class = FourPerPagePagination
 
     def _get_review(self):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
