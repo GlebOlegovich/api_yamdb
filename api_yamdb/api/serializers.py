@@ -1,16 +1,11 @@
-from django.core.exceptions import ValidationError
-from django.http import request
-from rest_framework import serializers
-import datetime as dt
-from django.contrib.auth import get_user_model
-from api_yamdb.settings import ROLE
-from reviews.models import Category, Title, Genre, Comment, Review
-from rest_framework.generics import get_object_or_404
-from django.db.models import Avg
-from rest_framework.fields import CurrentUserDefault
-from rest_framework.response import Response
-from rest_framework import status
+from django.utils import timezone
 
+from django.contrib.auth import get_user_model
+from django.db.models import Avg
+from rest_framework import serializers
+
+from api_yamdb.settings import ROLE
+from reviews.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
 
@@ -24,7 +19,6 @@ class UserSerializer(serializers.ModelSerializer):
             'username', 'email', 'first_name', 'last_name',
             'bio', 'role'
         )
-        read_only_fields = ('role',)
         optional_fields = ('first_name', 'last_name', 'bio', 'role')
 
 
@@ -37,35 +31,39 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('name', 'slug')
+        exclude = ['id']
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = ('name', 'slug')
+        exclude = ['id']
 
 
-class OutputSerializer(serializers.ModelSerializer):
+class OutputTitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(read_only=True, many=True)
     rating = serializers.SerializerMethodField('get_status')
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'description', 'genre', 'category', 'rating')
-
+        fields = (
+            'id', 'name', 'year', 'description',
+            'genre', 'category', 'rating'
+        )
 
     def get_status(self, obj):
-        dict = Review.objects.filter(title_id=int(obj.id)).aggregate(Avg('score'))
+        dict = Review.objects.filter(title_id=int(obj.id)).aggregate(
+            Avg('score')
+        )
         rating = dict.get('score__avg')
         if rating == 0:
-            rating = 'None'
-            return rating
+            return 'Оценок, пока что, нету...'
         return rating
 
-class InputSerializer(serializers.ModelSerializer):
+
+class InputTitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(slug_field='slug',
                                          queryset=Genre.objects.all(),
                                          many=True)
@@ -77,10 +75,11 @@ class InputSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
 
     def validate_year(self, value):
-        year = dt.date.today().year
+        year = timezone.now().year
         if not (value <= year):
             raise serializers.ValidationError('Проверьте год!')
         return value
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()

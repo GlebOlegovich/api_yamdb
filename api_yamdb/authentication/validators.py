@@ -3,7 +3,7 @@ from django.utils.deconstruct import deconstructible
 
 
 @deconstructible
-class MyUsernameValidator(validators.RegexValidator):
+class LowercaseLettersUsernameValidator(validators.RegexValidator):
     """
     Validator for usernames.\n
     - Only ASCII lowercase letters, numbers and underscore are supported.

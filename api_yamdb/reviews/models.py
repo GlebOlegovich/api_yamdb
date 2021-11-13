@@ -1,8 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.core.exceptions import ValidationError
-
 
 User = get_user_model()
 
@@ -10,6 +8,9 @@ User = get_user_model()
 class Category(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
+
+    class Meta:
+        ordering = ['id']
 
     def __str__(self):
         return self.name
@@ -19,7 +20,10 @@ class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
-    def str(self):
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
         return self.name
 
 
@@ -35,7 +39,10 @@ class Title(models.Model):
     description = models.TextField(null=True)
     genre = models.ManyToManyField(Genre, through='Genre_title')
 
-    def str(self):
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
         return self.name
 
 
@@ -49,10 +56,8 @@ class Genre_title(models.Model):
         on_delete=models.CASCADE,
         related_name='genre')
 
-    def __str__(self):
-        return f'"{self.title}" относится к жанру : {self.genre}'
-
     class Meta:
+        ordering = ['id']
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'genre'],
@@ -60,10 +65,14 @@ class Genre_title(models.Model):
             )
         ]
 
+    def __str__(self):
+        return f'"{self.title}" относится к жанру : {self.genre}'
+
 
 class Review(models.Model):
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE)
+        Title, on_delete=models.CASCADE,
+        related_name='reviews')
     text = models.TextField()
     author = models.ForeignKey(
         User, on_delete=models.CASCADE)
@@ -79,10 +88,8 @@ class Review(models.Model):
         db_index=True
     )
 
-    
-
     class Meta:
-        default_related_name = 'reviews'
+        ordering = ['id']
         verbose_name_plural = 'Отзывы'
         verbose_name = 'Отзыв'
         constraints = [
@@ -90,6 +97,8 @@ class Review(models.Model):
                                     name='unique_field')
         ]
 
+    def __str__(self):
+        return self.text
 
 
 class Comment(models.Model):
@@ -105,6 +114,10 @@ class Comment(models.Model):
         Review, on_delete=models.CASCADE)
 
     class Meta:
+        ordering = ['id']
         default_related_name = 'comments'
         verbose_name_plural = 'Коментарии к отзывам'
         verbose_name = 'Коментарий к отзыву'
+
+    def __str__(self):
+        return self.text

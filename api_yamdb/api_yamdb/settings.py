@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -21,6 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
     'django_filters',
     'rest_framework',
     'authentication',
@@ -36,6 +38,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'api_yamdb.urls'
@@ -89,13 +92,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly', 
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ]
-} 
+}
 
 # Internationalization
 
@@ -131,15 +134,15 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # Убрал это, что бы не сохранялось в кукис токены
+        # 'rest_framework.authentication.SessionAuthentication',
     ),
 }
-ROLE = (
-    ('moderator', 'moderator'),
-    ('user', 'user'),
-    ('admin', 'admin'),
-)
 
-# Все настройки SMPL_JWT - дефолтные, потому удалю что не надо
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1200),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -170,3 +173,18 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+GLOBAL_SETTINGS = {
+    'OUR_EMAIL': 'from@example.com',
+    'ROLE': (
+        # то как в БД / То, как видят при выборе
+        ('moderator', 'Модератор'),
+        ('user', 'Юзер'),
+        ('admin', 'Админ'),
+    ),
+    'admin': 'admin',
+    'moderator': 'moderator',
+    'user': 'user',
+}
+# Я хз как еще)) Походу я пень)
+ROLE = GLOBAL_SETTINGS['ROLE']
