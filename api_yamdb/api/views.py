@@ -88,7 +88,7 @@ class GenreViewSet(viewsets.ModelViewSet):
             return Response(None,
                             status=status.HTTP_405_METHOD_NOT_ALLOWED)
         serializer = GenreSerializer(instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)#1123123
 
     def update(self, request, *args, **kwargs):
         try:
