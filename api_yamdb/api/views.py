@@ -3,13 +3,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
 from reviews.models import Category, Comment, Genre, Review, Title
 from .filters import TitleFilter
+from .paginators import Pagination
 from .permissions import (AdminOrSuperuser, IsAdminOrReadOnly,
                           IsUserAnonModerAdmin)
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -20,10 +20,6 @@ from .serializers import (CategorySerializer, CommentSerializer,
 User = get_user_model()
 
 
-class MyPagination(PageNumberPagination):
-    page_size = 4
-
-
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     # https://www.django-rest-framework.org/api-guide/generic-views/#attributes
@@ -31,7 +27,7 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'username'
     serializer_class = UserSerializer
     permission_classes = (AdminOrSuperuser,)
-    pagination_class = MyPagination
+    pagination_class = Pagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
 
@@ -60,7 +56,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
-    pagination_class = MyPagination
+    pagination_class = Pagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -75,7 +71,7 @@ class GenreViewSet(mixins.ListModelMixin,
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly]
-    pagination_class = MyPagination
+    pagination_class = Pagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -88,7 +84,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.select_related(
         'category').prefetch_related('genre').all()
     permission_classes = [IsAdminOrReadOnly]
-    pagination_class = MyPagination
+    pagination_class = Pagination
     filter_backends = (DjangoFilterBackend, )
     filterset_fields = ('name', 'year', 'category', 'genre')
     filterset_class = TitleFilter
@@ -103,7 +99,7 @@ class ReViewSet(viewsets.ModelViewSet):
     permission_classes = [IsUserAnonModerAdmin]
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    pagination_class = MyPagination
+    pagination_class = Pagination
 
     def _get_title(self):
         return get_object_or_404(Title, id=self.kwargs['title_id'])
@@ -121,7 +117,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsUserAnonModerAdmin]
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    pagination_class = MyPagination
+    pagination_class = Pagination
 
     def _get_review(self):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
