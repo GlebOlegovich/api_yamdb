@@ -10,12 +10,12 @@ from reviews.models import Category, Comment, Genre, Review, Title
 
 from reviews.models import Category, Comment, Genre, Review, Title
 from .filters import TitleFilter
-from .paginators import Pagination
 from .permissions import (AdminOrSuperuser, IsAdminOrReadOnly,
                           IsUserAnonModerAdmin)
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, InputSerializer, OutputSerializer,
-                          ReviewSerializer, UserInfoSerializer, UserSerializer)
+                          GenreSerializer, InputTitleSerializer,
+                          OutputTitleSerializer, ReviewSerializer,
+                          UserInfoSerializer, UserSerializer)
 from .paginators import FourPerPagePagination
 
 User = get_user_model()
