@@ -9,11 +9,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         safe = request.method in permissions.SAFE_METHODS
         if request.user.is_authenticated:
-            admin_or_superuser = (
-                request.user.role == ADMIN
-                or request.user.is_superuser
-            )
-            return safe or admin_or_superuser
+            return safe or request.user._is_admin
         return safe
 
 
@@ -39,18 +35,14 @@ class IsUserAnonModerAdmin(permissions.BasePermission):
         if request.method == "DELETE":
             if request.user == obj.author:
                 return True, status.HTTP_403_FORBIDDEN
-            if (
-                request.user.role == ADMIN
-                or request.user.role == MODERATOR
-                or request.user.is_superuser
-            ):
+            if request.user._is_moderator:
                 return (True, status.HTTP_204_NO_CONTENT)
+
         safe = request.method in permissions.SAFE_METHODS
         if request.user.is_authenticated:
             admin_or_author = (
-                request.user.role == 'admin'
+                request.user._is_admin
                 or request.user == obj.author
-                or request.user.is_superuser
             )
             return safe or admin_or_author
         return safe
