@@ -1,33 +1,25 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+<<<<<<< HEAD
 from django.core.validators import MinValueValidator, MaxValueValidator
 <<<<<<< HEAD:api_yamdb/reviews/models.py
 =======
 from api_yamdb.settings import ROLE
 >>>>>>> gera:api_yamdb/yamdb/models.py
 
+=======
+>>>>>>> 5cd77ba2e9878adc1972fc6605528422e73bf096
 
 User = get_user_model()
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
 
-    def __str__(self):
-        return self.name
-
-
-class Title(models.Model):
-    name = models.CharField(max_length=200)
-    # Надо потом ограничения что ли наложить...
-    year = models.PositiveSmallIntegerField()
-    category = models.ForeignKey(
-        Category,
-        related_name='titles',
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True)
+    class Meta:
+        ordering = ['id']
 
     def __str__(self):
         return self.name
@@ -36,6 +28,28 @@ class Title(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return self.name
+
+
+class Title(models.Model):
+    name = models.CharField(max_length=200)
+    year = models.PositiveSmallIntegerField()
+    category = models.ForeignKey(
+        Category,
+        related_name='titles',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True)
+    description = models.TextField(null=True)
+    genre = models.ManyToManyField(Genre, through='Genre_title')
+
+    class Meta:
+        ordering = ['id']
 
     def __str__(self):
         return self.name
@@ -51,21 +65,23 @@ class Genre_title(models.Model):
         on_delete=models.CASCADE,
         related_name='genre')
 
-    def __str__(self):
-        return f'"{self.title}" относится к жанру : {self.genre}'
-
     class Meta:
+        ordering = ['id']
         constraints = [
             models.UniqueConstraint(
-                fields=['title_id', 'genre_id'],
+                fields=['title', 'genre'],
                 name='genre_titles'
             )
         ]
 
+    def __str__(self):
+        return f'"{self.title}" относится к жанру : {self.genre}'
+
 
 class Review(models.Model):
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE)
+        Title, on_delete=models.CASCADE,
+        related_name='reviews')
     text = models.TextField()
     author = models.ForeignKey(
         User, on_delete=models.CASCADE)
@@ -74,7 +90,6 @@ class Review(models.Model):
             MinValueValidator(1),
             MaxValueValidator(10)
         ]
-
     )
     pub_date = models.DateTimeField(
         'Дата добавления',
@@ -83,9 +98,16 @@ class Review(models.Model):
     )
 
     class Meta:
-        default_related_name = 'reviews'
+        ordering = ['id']
         verbose_name_plural = 'Отзывы'
         verbose_name = 'Отзыв'
+        constraints = [
+            models.UniqueConstraint(fields=['title', 'author'],
+                                    name='unique_field')
+        ]
+
+    def __str__(self):
+        return self.text
 
 
 class Comment(models.Model):
@@ -101,6 +123,10 @@ class Comment(models.Model):
         Review, on_delete=models.CASCADE)
 
     class Meta:
+        ordering = ['id']
         default_related_name = 'comments'
         verbose_name_plural = 'Коментарии к отзывам'
         verbose_name = 'Коментарий к отзыву'
+
+    def __str__(self):
+        return self.text

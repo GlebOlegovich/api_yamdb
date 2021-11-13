@@ -1,7 +1,9 @@
-from django.core.mail import send_mail
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core.mail import send_mail
 from django.utils import six
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from api_yamdb.settings import GLOBAL_SETTINGS
 
 
 def send_email_with_confirmation_code(user, confirmation_code):
@@ -11,7 +13,7 @@ def send_email_with_confirmation_code(user, confirmation_code):
             f'Здравствуйте, {user}, навравляем Вам код авторизации'
             f'(confirmation_code) - {confirmation_code}'
         ),
-        from_email='from@example.com',
+        from_email=GLOBAL_SETTINGS['OUR_EMAIL'],
         recipient_list=[user.email],
         fail_silently=False,
     )
@@ -32,6 +34,5 @@ def get_access_token_for_user(user):
     refresh = RefreshToken.for_user(user)
 
     return {
-        # 'refresh': str(refresh),
         'access': str(refresh.access_token),
     }

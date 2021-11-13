@@ -1,14 +1,17 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from .models import User
-from .validators import MyUsernameValidator, NotMeUsername
+
+from .validators import LowercaseLettersUsernameValidator, NotMeUsername
+
+User = get_user_model()
 
 
 class UsernameAndEmailObjSerialiser(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
         # Тут тоже убираем, потому что в модели юзера убрали валидатор
-        # validators=[MyUsernameValidator()]
+        # validators=[LowercaseLettersUsernameValidator()]
         validators=[NotMeUsername()]
     )
     email = serializers.EmailField()
@@ -32,43 +35,36 @@ class UsernameAndEmailModelSerialiser(serializers.ModelSerializer):
     def validate_username(self, username):
         if username.lower() == 'me':
             raise serializers.ValidationError("'me' - недопустимое имя!")
-        try:
-            User.objects.get(username__iexact=username.lower())
+
+        if User.objects.filter(
+            username__iexact=username.lower()
+        ).exists():
+            print('ewffwefw')
             raise serializers.ValidationError(
                 f'Пользователь с ником {username} уже есть'
             )
-        except User.DoesNotExist:
-            pass
+        print(f'Принт из сериализатора {username}')
         return username
 
     def validate_email(self, email):
-        try:
-            User.objects.get(email__iexact=email.lower())
+        if User.objects.filter(
+            email__iexact=email.lower()
+        ).exists():
+            print('ewew')
             raise serializers.ValidationError(
                 f'Пользователь с почтой {email} уже есть'
             )
-        except User.DoesNotExist:
-            pass
         return email
 
     class Meta:
         model = User
         fields = ('username', 'email')
-        # Пока что не оч понял, какая нам уникальность нужна, осталю
-        # уникальнымипо отдельности пока что, по идее - так
-        # validators = [
-        #     UniqueTogetherValidator(
-        #         queryset=model.objects.all(),
-        #         fields=('username', 'email'),
-        #         message='Пользователь с такими данными уже заресистирован'
-        #     )
-        # ]
 
 
 class GetTokenSerialiser(serializers.Serializer):
 
     username = serializers.CharField(
         max_length=150,
-        validators=[MyUsernameValidator()]
+        validators=[LowercaseLettersUsernameValidator()]
     )
     confirmation_code = serializers.CharField()
