@@ -3,14 +3,10 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
 from api_yamdb.settings import ROLE, GLOBAL_SETTINGS
-from .validators import LowercaseLettersUsernameValidator, NotMeUsername
+from .validators import NotMeUsername
 
 
 class User(AbstractUser):
-    # Это я хотел, что бы ники были только в нижнем регистре
-    # Пытался сделать, что бы ники Nik и nik были бы одним и тем же юзером
-    # Но в тестах Test_User ник, так что для тестов оставим как в оригинале
-    my_username_validator = LowercaseLettersUsernameValidator()
 
     username = models.CharField(
         'Username',

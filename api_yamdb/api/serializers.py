@@ -22,7 +22,6 @@ class UserSerializer(serializers.ModelSerializer):
         optional_fields = ('first_name', 'last_name', 'bio', 'role')
 
 
-# Так делать вообще нормально?)
 class UserInfoSerializer(UserSerializer):
     role = serializers.ChoiceField(choices=ROLE, read_only=True)
 

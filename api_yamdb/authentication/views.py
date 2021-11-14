@@ -44,36 +44,20 @@ def get_or_create_user(request):
     '''
     obj_serializer = UsernameAndEmailObjSerialiser(data=request.data)
     obj_serializer.is_valid(raise_exception=True)
-
-    try:
-        # Делал так, на случай, ну мало ли, у нас будет
-        # косяк и ник будет не уникальным, так хоть
-        # еще по email найдем того самого)))
-        # user = User.objects.get(**obj_serializer.validated_data)
-
-        # Тут два варика или искать по юзернейму и потом проводить
-        # сериализацию данных, что бы email был уникальным,
-        # НОВАЯ ЗАПИСЬ НЕ СОЗДАЕТСЯ, но ответ 200
-        # (возвращаем то что нам дали на вход), а не 400...
+    if User.objects.filter(
+        **obj_serializer.validated_data
+    ).exists():
         user = User.objects.get(
             username=obj_serializer.validated_data['username']
         )
-        if user.email != request.data['email']:
-            raise User.DoesNotExist
-        # model_obj_serializer = UsernameAndEmailModelSerialiser(
-        #     data=request.data
-        # )
-        # model_obj_serializer.is_valid(raise_exception=True)
-    except User.DoesNotExist:
+    else:
         model_obj_serializer = UsernameAndEmailModelSerialiser(
             data=request.data
         )
         model_obj_serializer.is_valid(raise_exception=True)
         user = model_obj_serializer.save()
-        print(f'Принт из вью {user}')
 
-    print(request.data)
     send_email_with_confirmation_code(
         user,
         account_activation_token.make_token(user))
-    return Response(request.data)
+    return Response(obj_serializer.data)

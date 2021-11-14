@@ -10,17 +10,15 @@ User = get_user_model()
 class UsernameAndEmailObjSerialiser(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
-        # Тут тоже убираем, потому что в модели юзера убрали валидатор
-        # validators=[LowercaseLettersUsernameValidator()]
         validators=[NotMeUsername()]
     )
     email = serializers.EmailField()
 
-    # Не знаю, как лучше, так, или как выше...
-    # def validate_username(self, username):
-    #     if username.lower() == 'me':
-    #         raise serializers.ValidationError("'me' - недопустимое имя!")
-    #     return username
+    def validate_username(self, username):
+        return username.lower()
+
+    def validate_email(self, email):
+        return email.lower()
 
 
 class UsernameAndEmailModelSerialiser(serializers.ModelSerializer):
@@ -39,7 +37,6 @@ class UsernameAndEmailModelSerialiser(serializers.ModelSerializer):
         if User.objects.filter(
             username__iexact=username.lower()
         ).exists():
-            print('ewffwefw')
             raise serializers.ValidationError(
                 f'Пользователь с ником {username} уже есть'
             )
@@ -50,7 +47,6 @@ class UsernameAndEmailModelSerialiser(serializers.ModelSerializer):
         if User.objects.filter(
             email__iexact=email.lower()
         ).exists():
-            print('ewew')
             raise serializers.ValidationError(
                 f'Пользователь с почтой {email} уже есть'
             )

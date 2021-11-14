@@ -1,8 +1,5 @@
 from rest_framework import permissions, status
 
-ADMIN = 'admin'
-MODERATOR = 'moderator'
-
 
 class IsAdminOrReadOnly(permissions.BasePermission):
 

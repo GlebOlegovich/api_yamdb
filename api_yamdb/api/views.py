@@ -82,8 +82,6 @@ class GenreViewSet(mixins.ListModelMixin,
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    # Тут еще ругается на подсчет рейтинга... как то надо фиксить
-    # Но, я хз как... @ Godleib
     queryset = Title.objects.select_related(
         'category').prefetch_related('genre').all()
     permission_classes = [IsAdminOrReadOnly]
