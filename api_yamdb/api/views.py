@@ -8,7 +8,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from reviews.models import Category, Genre, Review, Title
+from reviews.models import Category, Genre, Review, Title, Comment
 from .filters import TitleFilter
 from .permissions import (AdminOrSuperuser, IsAdminOrReadOnly,
                           IsUserAnonModerAdmin)
@@ -82,10 +82,12 @@ class GenreViewSet(mixins.ListModelMixin,
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.select_related(
-        'category').prefetch_related('genre').all().annotate(
-            rating=Avg('reviews__score')
-    ).order_by('id')
+    queryset = (
+        Title.objects.select_related('category')
+        .prefetch_related('genre')
+        .annotate(rating=Avg('reviews__score'))
+        .order_by('id')
+    )
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = FourPerPagePagination
     filter_backends = (DjangoFilterBackend, )
@@ -104,13 +106,19 @@ class ReViewSet(viewsets.ModelViewSet):
     pagination_class = FourPerPagePagination
 
     # Вызывается 2 раза, при переходе по ссылке
+    # (если get_queryset будет, как закоменченый)
     # http://127.0.0.1:8000/api/v1/titles/1/reviews/
     def _get_title(self):
         return get_object_or_404(Title, id=self.kwargs['title_id'])
 
     def get_queryset(self):
-        title = self._get_title()
-        return title.reviews.select_related('author').all()
+        return Review.objects.filter(
+            title_id=self.kwargs.get('title_id')
+        ).select_related('author')
+        # или вот так, через related names, но тогда тут будет
+        # 2 повторяющихся запроса судя по дебагтулбару
+        # title = self._get_title()
+        # return title.reviews.select_related('author')
 
     def perform_create(self, serializer):
         title = self._get_title()
@@ -123,13 +131,20 @@ class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = FourPerPagePagination
 
     # Вызывается 2 раза, при переходе по ссылке
-    # http://127.0.0.1:8000/api/v1/titles/1/reviews/6/comments/
+    # (если get_queryset будет, как закоменченый)
+    # http://127.0.0.1:8000/api/v1/titles/5/reviews/6/comments/
     def _get_review(self):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
 
     def get_queryset(self):
-        review = self._get_review()
-        return review.coments.select_related('author').all()
+        return Comment.objects.filter(
+            review__title_id=self.kwargs.get('title_id'),
+            review_id=self.kwargs.get('review_id')
+        ).select_related('author')
+        # или вот так, через related names, но тогда тут будет
+        # 2 повторяющихся запроса судя по дебагтулбару
+        # review = self._get_review()
+        # return review.coments.select_related('author')
 
     def perform_create(self, serializer):
         review = self._get_review()
