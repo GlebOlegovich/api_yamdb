@@ -149,7 +149,4 @@ dmypy.json
 media/
 sent_emails/
 
-# Прячем миграции
-**/migrations
-**/**/migrations
 
