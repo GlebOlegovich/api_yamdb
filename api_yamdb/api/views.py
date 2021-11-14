@@ -81,32 +81,6 @@ class GenreViewSet(mixins.ListModelMixin,
     lookup_field = 'slug'
     lookup_url_kwarg = 'slug'
 
-    # ОЛЯ, вроде бы надо удалить, это лишнее переопределение
-    # def perform_destroy(self, instance):
-    #     instance.delete()
-
-    # Без этого тесты проходят, Оля, это почему?) Посмотри сюда)
-    # def retrieve(self, request, *args, **kwargs):
-    #     try:
-    #         instance = self.get_object()
-    #     except Exception:
-    #         return Response(None,
-    #                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
-    #     serializer = GenreSerializer(instance)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # def update(self, request, *args, **kwargs):
-    #     try:
-    #         instance = self.get_object()
-    #     except Exception:
-    #         return Response(None,
-    #                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
-    #     serializer = GenreSerializer(instance, data=request.data,
-    #                                  partial=True)
-    #     serializer.is_valid(raise_exception=False)
-    #     self.perform_update(serializer)
-    #     return Response(serializer.data)
-
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.select_related(
