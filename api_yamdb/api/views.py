@@ -107,8 +107,9 @@ class GenreViewSet(mixins.ListModelMixin,
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(
-        rating=Avg('reviews__score')
+    queryset = Title.objects.select_related(
+        'category').prefetch_related('genre').all().annotate(
+            rating=Avg('reviews__score')
     ).order_by('id')
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = FourPerPagePagination
