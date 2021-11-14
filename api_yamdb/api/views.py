@@ -128,9 +128,9 @@ class TitlesViewSet(viewsets.ModelViewSet):
     #     Title.objects.all().annotate(rating=Avg('reviews__score'))
     #     id = self.kwargs['id']
     #     title = get_object_or_404(Title, id=self.kwargs['title_id'])
-    #     dict = Review.objects.filter(title__id=self.kwargs['id']).self.aggregate(
-    #         Avg('score')
-    #     )
+    #     dict = Review.objects.filter(
+    #           title__id=self.kwargs['id']
+    #     ).self.aggregate(Avg('score'))
     #     print(dict)
     #     rating = dict.get('score__avg')
     #     if rating == 0:
