@@ -7,8 +7,8 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from reviews.models import Category, Comment, Genre, Review, Title
 
+from reviews.models import Category, Comment, Genre, Review, Title
 from reviews.models import Category, Comment, Genre, Review, Title
 from .filters import TitleFilter
 from .permissions import (AdminOrSuperuser, IsAdminOrReadOnly,
@@ -81,29 +81,31 @@ class GenreViewSet(mixins.ListModelMixin,
     lookup_field = 'slug'
     lookup_url_kwarg = 'slug'
 
-    def perform_destroy(self, instance):
-        instance.delete()
+    # ОЛЯ, вроде бы надо удалить, это лишнее переопределение
+    # def perform_destroy(self, instance):
+    #     instance.delete()
 
-    def retrieve(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-        except Exception:
-            return Response(None,
-                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        serializer = GenreSerializer(instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    # Без этого тесты проходят, Оля, это почему?) Посмотри сюда)
+    # def retrieve(self, request, *args, **kwargs):
+    #     try:
+    #         instance = self.get_object()
+    #     except Exception:
+    #         return Response(None,
+    #                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    #     serializer = GenreSerializer(instance)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def update(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-        except Exception:
-            return Response(None,
-                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        serializer = GenreSerializer(instance, data=request.data,
-                                     partial=True)
-        serializer.is_valid(raise_exception=False)
-        self.perform_update(serializer)
-        return Response(serializer.data)
+    # def update(self, request, *args, **kwargs):
+    #     try:
+    #         instance = self.get_object()
+    #     except Exception:
+    #         return Response(None,
+    #                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    #     serializer = GenreSerializer(instance, data=request.data,
+    #                                  partial=True)
+    #     serializer.is_valid(raise_exception=False)
+    #     self.perform_update(serializer)
+    #     return Response(serializer.data)
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
@@ -116,32 +118,6 @@ class TitlesViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, )
     filterset_fields = ('name', 'year', 'category', 'genre')
     filterset_class = TitleFilter
-
-    # def get_rating(self, *args, **kwargs):
-    #     """title = get_object_or_404(Title, id=self.kwargs['title_id'])
-    #     dict = Review.objects.filter(title_id=title).aggregate(
-    #         Avg('score')
-    #         )
-    #     rating = dict.get('score__avg')
-    #     if rating == 0:
-    #         return 'Оценок, пока что, нету...'
-    #     return rating"""
-    #     Title.objects.all().annotate(rating=Avg('reviews__score'))
-    #     id = self.kwargs['id']
-    #     title = get_object_or_404(Title, id=self.kwargs['title_id'])
-    #     dict = Review.objects.filter(
-    #           title__id=self.kwargs['id']
-    #     ).self.aggregate(Avg('score'))
-    #     print(dict)
-    #     rating = dict.get('score__avg')
-    #     if rating == 0:
-    #         return 'Оценок, пока что, нету...'
-    #     return rating
-
-    # """def get_serializer_context(self):
-    #     if self.get_rating() is not type(None):
-    #         return {'rating': self.get_rating()}
-    #     return None"""
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -159,12 +135,14 @@ class ReViewSet(viewsets.ModelViewSet):
         return get_object_or_404(Title, id=self.kwargs['title_id'])
 
     def get_queryset(self):
-        return Review.objects.filter(
-            title__id=self.kwargs['title_id']).select_related('author')
+        title = Title.objects.get(id=self.kwargs['title_id'])
+        return title.reviews.select_related('author')
+        # return Review.objects.filter(
+        #     title__id=self.kwargs['title_id']).select_related('author')
 
     def perform_create(self, serializer):
         title = self._get_title()
-        return serializer.save(author=self.request.user, title=title)
+        serializer.save(author=self.request.user, title=title)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -181,5 +159,5 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         review = self._get_review()
-        author = get_object_or_404(User, username=self.request.user)
-        return serializer.save(author=author, review=review)
+        author = self.request.user
+        serializer.save(author=author, review=review)

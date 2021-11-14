@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+
+from .validators import title_year_validator
 User = get_user_model()
 
 
@@ -29,7 +31,10 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=200)
-    year = models.PositiveSmallIntegerField()
+    # я бстро набросал, проверьте, работает ли вообще валидация эта
+    year = models.PositiveSmallIntegerField(
+        validators=[title_year_validator]
+    )
     category = models.ForeignKey(
         Category,
         related_name='titles',
@@ -78,8 +83,14 @@ class Review(models.Model):
         User, on_delete=models.CASCADE)
     score = models.IntegerField(
         validators=[
-            MinValueValidator(1),
-            MaxValueValidator(10)
+            MinValueValidator(
+                1,
+                message='Рейтинг не может быть меньше 1'
+            ),
+            MaxValueValidator(
+                10,
+                message='Рейтинг не может быть более 10'
+            )
         ]
     )
     pub_date = models.DateTimeField(

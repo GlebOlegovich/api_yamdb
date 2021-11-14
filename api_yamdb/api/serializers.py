@@ -1,7 +1,6 @@
 from django.utils import timezone
 
 from django.contrib.auth import get_user_model
-from django.db.models import Avg
 from rest_framework import serializers
 
 from api_yamdb.settings import ROLE
@@ -43,7 +42,7 @@ class GenreSerializer(serializers.ModelSerializer):
 class OutputTitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(read_only=True, many=True)
-    rating = serializers.SerializerMethodField('get_status')
+    rating = serializers.SerializerMethodField('get_rating')
 
     class Meta:
         model = Title
@@ -52,14 +51,8 @@ class OutputTitleSerializer(serializers.ModelSerializer):
             'genre', 'category', 'rating'
         )
 
-    def get_status(self, obj):
-        dict = Review.objects.filter(title_id=int(obj.id)).aggregate(
-            Avg('score')
-        )
-        rating = dict.get('score__avg')
-        if rating == 0:
-            return 'Оценок, пока что, нету...'
-        return rating
+    def get_rating(self, obj):
+        return obj.rating
 
 
 class InputTitleSerializer(serializers.ModelSerializer):
