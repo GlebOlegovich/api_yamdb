@@ -40,7 +40,6 @@ class UsernameAndEmailModelSerialiser(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f'Пользователь с ником {username} уже есть'
             )
-        print(f'Принт из сериализатора {username}')
         return username
 
     def validate_email(self, email):

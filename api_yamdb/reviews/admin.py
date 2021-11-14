@@ -19,11 +19,10 @@ class TitleAdmin(admin.ModelAdmin):
         'name',
         'year',
         'category',
-        'description',
-        'genre'
+        'get_genre'
     )
-    list_editable = ('name', 'year', 'category', 'description', 'genre')
-    search_fields = ('name', 'year', 'category', 'description', 'genre')
+    list_editable = ('name', 'year', 'category')
+    search_fields = ('name', 'year', 'category')
     empty_value_display = '-пусто-'
 
 

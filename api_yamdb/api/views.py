@@ -8,8 +8,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from reviews.models import Category, Comment, Genre, Review, Title
-from reviews.models import Category, Comment, Genre, Review, Title
+from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
 from .permissions import (AdminOrSuperuser, IsAdminOrReadOnly,
                           IsUserAnonModerAdmin)
@@ -101,18 +100,17 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
 class ReViewSet(viewsets.ModelViewSet):
     permission_classes = [IsUserAnonModerAdmin]
-    queryset = Review.objects.get_queryset().order_by('id')
     serializer_class = ReviewSerializer
     pagination_class = FourPerPagePagination
 
+    # Вызывается 2 раза, при переходе по ссылке
+    # http://127.0.0.1:8000/api/v1/titles/1/reviews/
     def _get_title(self):
         return get_object_or_404(Title, id=self.kwargs['title_id'])
 
     def get_queryset(self):
-        title = Title.objects.get(id=self.kwargs['title_id'])
-        return title.reviews.select_related('author')
-        # return Review.objects.filter(
-        #     title__id=self.kwargs['title_id']).select_related('author')
+        title = self._get_title()
+        return title.reviews.select_related('author').all()
 
     def perform_create(self, serializer):
         title = self._get_title()
@@ -121,15 +119,17 @@ class ReViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsUserAnonModerAdmin]
-    queryset = Comment.objects.get_queryset().order_by('id')
     serializer_class = CommentSerializer
     pagination_class = FourPerPagePagination
 
+    # Вызывается 2 раза, при переходе по ссылке
+    # http://127.0.0.1:8000/api/v1/titles/1/reviews/6/comments/
     def _get_review(self):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
 
     def get_queryset(self):
-        return Comment.objects.filter(review__id=self.kwargs['review_id'])
+        review = self._get_review()
+        return review.coments.select_related('author').all()
 
     def perform_create(self, serializer):
         review = self._get_review()

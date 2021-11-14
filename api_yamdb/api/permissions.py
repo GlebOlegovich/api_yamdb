@@ -18,7 +18,6 @@ class ReadOnly(permissions.BasePermission):
 class AdminOrSuperuser(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_authenticated:
-            # Вот пример
             return request.user._is_admin
         return False
 
@@ -31,7 +30,7 @@ class IsUserAnonModerAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method == "DELETE":
             if request.user == obj.author:
-                return True, status.HTTP_403_FORBIDDEN
+                return (True, status.HTTP_403_FORBIDDEN)
             if request.user._is_moderator:
                 return (True, status.HTTP_204_NO_CONTENT)
 

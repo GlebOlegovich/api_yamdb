@@ -47,6 +47,9 @@ class Title(models.Model):
     description = models.TextField(null=True)
     genre = models.ManyToManyField(Genre, through='GenreTitle')
 
+    def get_genre(self):
+        return "\n".join([g.name for g in self.genre.all()])
+
     class Meta:
         ordering = ['id']
         verbose_name_plural = 'Приозведения'
@@ -129,7 +132,10 @@ class Comment(models.Model):
         db_index=True
     )
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE)
+        Review,
+        related_name='coments',
+        on_delete=models.CASCADE
+    )
 
     class Meta:
         ordering = ['id']

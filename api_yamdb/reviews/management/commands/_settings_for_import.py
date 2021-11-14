@@ -1,6 +1,6 @@
 import os
 
-from reviews.models import (User, Genre, Genre_title, Title,
+from reviews.models import (User, Genre, GenreTitle, Title,
                             Category, Comment, Review)
 from api_yamdb.settings import BASE_DIR
 
@@ -11,7 +11,7 @@ NEED_TO_PARSE = {
     'category.csv': Category,
     'genre.csv': Genre,
     'titles.csv': Title,
-    'genre_title.csv': Genre_title,
+    'genre_title.csv': GenreTitle,
     'review.csv': Review,
     'comments.csv': Comment,
 }

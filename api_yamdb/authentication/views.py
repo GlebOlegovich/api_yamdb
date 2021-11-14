@@ -15,25 +15,25 @@ from .serializers import (GetTokenSerialiser, UsernameAndEmailModelSerialiser,
 @permission_classes((AllowAny,))
 def get_token(request):
     serializer = GetTokenSerialiser(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        valid_data = dict(serializer.validated_data)
-        user = get_object_or_404(
-            User,
-            username__iexact=valid_data['username'].lower()
+    serializer.is_valid(raise_exception=True)
+    valid_data = dict(serializer.validated_data)
+    user = get_object_or_404(
+        User,
+        username__iexact=valid_data['username'].lower()
+    )
+    if (
+        account_activation_token.check_token(
+            user=user,
+            token=valid_data['confirmation_code']
         )
-        if (
-            account_activation_token.check_token(
-                user=user,
-                token=valid_data['confirmation_code']
-            )
-        ):
-            token = get_access_token_for_user(user)
-            return Response({'token': token['access']})
-        else:
-            return Response(
-                {'token': 'Неверный код подтверждения!'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+    ):
+        token = get_access_token_for_user(user)
+        return Response({'token': token['access']})
+    else:
+        return Response(
+            {'token': 'Неверный код подтверждения!'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(['POST'])

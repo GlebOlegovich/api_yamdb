@@ -1,7 +1,7 @@
 from django.utils import timezone
-
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 
 from api_yamdb.settings import ROLE
 from reviews.models import Category, Comment, Genre, Review, Title
@@ -80,12 +80,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ("id", "text", "author", "score", "pub_date")
         model = Review
 
-    def create(self, validated_data):
-        author = validated_data.get('author')
-        title = validated_data.get('title')
-        if Review.objects.filter(author=author, title=title).exists():
-            raise serializers.ValidationError()
-        return Review.objects.create(**validated_data)
+    def validate(self, obj):
+        title_id = self.context['view'].kwargs.get('title_id')
+        request = self.context['request']
+        title = get_object_or_404(Title, id=title_id)
+        if request.method == 'POST':
+            if Review.objects.filter(
+                author=request.user, title=title
+            ).exists():
+                raise serializers.ValidationError(
+                    'Вы уже оставля свое ревью к этому тайтлу'
+                )
+        return obj
 
 
 class CommentSerializer(serializers.ModelSerializer):
