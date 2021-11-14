@@ -13,6 +13,8 @@ class Category(models.Model):
 
     class Meta:
         ordering = ['id']
+        verbose_name_plural = 'Категории произведений'
+        verbose_name = 'Категории произведений'
 
     def __str__(self):
         return self.name
@@ -24,6 +26,8 @@ class Genre(models.Model):
 
     class Meta:
         ordering = ['id']
+        verbose_name_plural = 'Жанры произведений'
+        verbose_name = 'Жанры произведений'
 
     def __str__(self):
         return self.name
@@ -31,7 +35,6 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=200)
-    # я бстро набросал, проверьте, работает ли вообще валидация эта
     year = models.PositiveSmallIntegerField(
         validators=[title_year_validator]
     )
@@ -42,16 +45,18 @@ class Title(models.Model):
         blank=True,
         null=True)
     description = models.TextField(null=True)
-    genre = models.ManyToManyField(Genre, through='Genre_title')
+    genre = models.ManyToManyField(Genre, through='GenreTitle')
 
     class Meta:
         ordering = ['id']
+        verbose_name_plural = 'Приозведения'
+        verbose_name = 'Приозведения'
 
     def __str__(self):
         return self.name
 
 
-class Genre_title(models.Model):
+class GenreTitle(models.Model):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -63,6 +68,8 @@ class Genre_title(models.Model):
 
     class Meta:
         ordering = ['id']
+        verbose_name_plural = 'Связь названий с жанрами'
+        verbose_name = 'Связь названий с жанрами'
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'genre'],
