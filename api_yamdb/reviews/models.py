@@ -1,16 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-<<<<<<< HEAD
 from django.core.validators import MinValueValidator, MaxValueValidator
-<<<<<<< HEAD:api_yamdb/reviews/models.py
-=======
-from api_yamdb.settings import ROLE
->>>>>>> gera:api_yamdb/yamdb/models.py
-
-=======
->>>>>>> 5cd77ba2e9878adc1972fc6605528422e73bf096
-
 User = get_user_model()
 
 

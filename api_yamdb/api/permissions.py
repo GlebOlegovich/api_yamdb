@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-from rest_framework import permissions
-from django.contrib.auth import get_user_model
-
-ADMIN = 'admin'
-User = get_user_model()
-=======
 from rest_framework import permissions, status
 
 ADMIN = 'admin'
@@ -18,7 +11,6 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         if request.user.is_authenticated:
             return safe or request.user._is_admin
         return safe
->>>>>>> 5cd77ba2e9878adc1972fc6605528422e73bf096
 
 
 class ReadOnly(permissions.BasePermission):
@@ -35,23 +27,6 @@ class AdminOrSuperuser(permissions.BasePermission):
 
 
 class IsUserAnonModerAdmin(permissions.BasePermission):
-<<<<<<< HEAD
-
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        if request.method == 'POST' or request.method == 'DELETE':
-            return obj.author == request.user
-        if request.method == 'PATCH':
-            if obj.author == request.user:
-                return True
-            if request.user.is_authenticated:
-                if request.user.role == 'admin' or request.user.role == 'moderator':
-                    return True
-                return False
-            return False
-        return False
-=======
     def has_permission(self, request, view):
         return (request.method in permissions.SAFE_METHODS
                 or request.user.is_authenticated)
@@ -71,4 +46,3 @@ class IsUserAnonModerAdmin(permissions.BasePermission):
             )
             return safe or admin_or_author
         return safe
->>>>>>> 5cd77ba2e9878adc1972fc6605528422e73bf096

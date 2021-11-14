@@ -1,35 +1,5 @@
-<<<<<<< HEAD
-from decimal import Context
-from django.http import request
-from rest_framework import viewsets
 from django.contrib.auth import get_user_model
-from rest_framework import filters, viewsets, status
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.generics import get_object_or_404
-from rest_framework.serializers import Serializer
-from reviews.models import Category, Title, Genre, Comment, Review
-from .permissions import (IsAdminOrReadOnly, AdminOrSuperuser,
-                          IsUserAnonModerAdmin)
-from .serializers import (CategorySerializer, GenreSerializer,
-                          OutputSerializer, InputSerializer,
-                          UserSerializer, UserInfoSerializer,
-                          ReviewSerializer, CommentSerializer)
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from .filters import TitleFilter
-from rest_framework.generics import get_object_or_404
 from django.db.models import Avg
-import json
-
-User = get_user_model()
-
-
-class MyPagination(PageNumberPagination):
-    page_size = 4
-
-=======
-from django.contrib.auth import get_user_model
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets, mixins
@@ -51,7 +21,6 @@ from .paginators import FourPerPagePagination
 
 User = get_user_model()
 
->>>>>>> 5cd77ba2e9878adc1972fc6605528422e73bf096
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -81,20 +50,6 @@ class UserViewSet(viewsets.ModelViewSet):
             data=request.data,
             partial=True
         )
-<<<<<<< HEAD
-        if serializer.is_valid():
-            tmp = serializer.save()
-            print(tmp)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.get_queryset().order_by('id')
-    serializer_class = CategorySerializer
-    permission_classes = [IsAdminOrReadOnly]
-    pagination_class = MyPagination
-=======
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -106,7 +61,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = FourPerPagePagination
->>>>>>> 5cd77ba2e9878adc1972fc6605528422e73bf096
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -153,44 +107,46 @@ class GenreViewSet(mixins.ListModelMixin,
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.all().annotate(
+        rating=Avg('reviews__score')
+    ).order_by('id')
     permission_classes = [IsAdminOrReadOnly]
-    pagination_class = MyPagination
+    pagination_class = FourPerPagePagination
     filter_backends = (DjangoFilterBackend, )
     filterset_fields = ('name', 'year', 'category', 'genre')
-    filter_class = TitleFilter
-    
-    
-    def get_rating(self, *args, **kwargs):
-        """title = get_object_or_404(Title, id=self.kwargs['title_id'])
-        dict = Review.objects.filter(title_id=title).aggregate(
-            Avg('score')
-            )
-        rating = dict.get('score__avg')
-        if rating == 0:
-            return 'Оценок, пока что, нету...'
-        return rating"""
-        Title.objects.all().annotate(rating=Avg('reviews__score'))
-        id = self.kwargs['id']
-        title = get_object_or_404(Title, id=self.kwargs['title_id'])
-        dict = Review.objects.filter(title__id=self.kwargs['id']).self.aggregate(
-            Avg('score')
-        )
-        print(dict)
-        rating = dict.get('score__avg')
-        if rating == 0:
-            return 'Оценок, пока что, нету...'
-        return rating
+    filterset_class = TitleFilter
 
-    """def get_serializer_context(self):
-        if self.get_rating() is not type(None):
-            return {'rating': self.get_rating()}
-        return None"""
+    # def get_rating(self, *args, **kwargs):
+    #     """title = get_object_or_404(Title, id=self.kwargs['title_id'])
+    #     dict = Review.objects.filter(title_id=title).aggregate(
+    #         Avg('score')
+    #         )
+    #     rating = dict.get('score__avg')
+    #     if rating == 0:
+    #         return 'Оценок, пока что, нету...'
+    #     return rating"""
+    #     Title.objects.all().annotate(rating=Avg('reviews__score'))
+    #     id = self.kwargs['id']
+    #     title = get_object_or_404(Title, id=self.kwargs['title_id'])
+    #     dict = Review.objects.filter(title__id=self.kwargs['id']).self.aggregate(
+    #         Avg('score')
+    #     )
+    #     print(dict)
+    #     rating = dict.get('score__avg')
+    #     if rating == 0:
+    #         return 'Оценок, пока что, нету...'
+    #     return rating
+
+    # """def get_serializer_context(self):
+    #     if self.get_rating() is not type(None):
+    #         return {'rating': self.get_rating()}
+    #     return None"""
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
-            return OutputSerializer
-        return InputSerializer
+            return OutputTitleSerializer
+        return InputTitleSerializer
+
 
 class ReViewSet(viewsets.ModelViewSet):
     permission_classes = [IsUserAnonModerAdmin]

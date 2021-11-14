@@ -1,7 +1,6 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter, SimpleRouter
-from .views import UserViewSet, UserInfoViewSet, CommentViewSet, ReViewSet
-from rest_framework.authtoken import views
+from rest_framework.routers import DefaultRouter
+from .views import UserViewSet, CommentViewSet, ReViewSet
 
 from api.views import (CategoryViewSet, CommentViewSet, GenreViewSet,
                        ReViewSet, TitlesViewSet, UserViewSet)
@@ -22,7 +21,5 @@ router.register(
 
 
 urlpatterns = [
-    # Важный факт, такие адреса должны быть до подключения роутера!
-    path('v1/users/me/', UserInfoViewSet.as_view()),
     path('v1/', include(router.urls)),
 ]

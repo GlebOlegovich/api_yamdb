@@ -1,16 +1,8 @@
-<<<<<<< HEAD
-=======
 from django.utils import timezone
 
->>>>>>> 5cd77ba2e9878adc1972fc6605528422e73bf096
 from django.contrib.auth import get_user_model
 from django.db.models import Avg
 from rest_framework import serializers
-<<<<<<< HEAD
-from api_yamdb.settings import ROLE
-from reviews.models import Comment, Review
-=======
->>>>>>> 5cd77ba2e9878adc1972fc6605528422e73bf096
 
 from api_yamdb.settings import ROLE
 from reviews.models import Category, Comment, Genre, Review, Title
@@ -33,8 +25,6 @@ class UserSerializer(serializers.ModelSerializer):
 # Так делать вообще нормально?)
 class UserInfoSerializer(UserSerializer):
     role = serializers.ChoiceField(choices=ROLE, read_only=True)
-<<<<<<< HEAD
-=======
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -89,7 +79,6 @@ class InputTitleSerializer(serializers.ModelSerializer):
         if not (value <= year):
             raise serializers.ValidationError('Проверьте год!')
         return value
->>>>>>> 5cd77ba2e9878adc1972fc6605528422e73bf096
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -113,9 +102,3 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("id", "text", "author", "pub_date")
         model = Comment
-<<<<<<< HEAD
-=======
-
-    def create(self, validated_data):
-        return Comment.objects.create(**validated_data)
->>>>>>> 5cd77ba2e9878adc1972fc6605528422e73bf096
