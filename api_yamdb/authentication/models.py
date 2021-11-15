@@ -34,6 +34,11 @@ class User(AbstractUser):
         default=GLOBAL_SETTINGS['user']
     )
 
+    class Meta:
+        ordering = ['id']
+        verbose_name_plural = 'Юзеры'
+        verbose_name = 'Юзер'
+
     @property
     def _is_admin(self):
         return self.role == GLOBAL_SETTINGS['admin'] or self.is_superuser
@@ -41,8 +46,3 @@ class User(AbstractUser):
     @property
     def _is_moderator(self):
         return self.role == GLOBAL_SETTINGS['moderator'] or self._is_admin
-
-    class Meta:
-        ordering = ['id']
-        verbose_name_plural = 'Юзеры'
-        verbose_name = 'Юзер'

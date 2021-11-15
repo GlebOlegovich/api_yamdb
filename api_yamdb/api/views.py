@@ -105,9 +105,6 @@ class ReViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     pagination_class = FourPerPagePagination
 
-    # Вызывается 2 раза, при переходе по ссылке
-    # (если get_queryset будет, как закоменченый)
-    # http://127.0.0.1:8000/api/v1/titles/1/reviews/
     def _get_title(self):
         return get_object_or_404(Title, id=self.kwargs['title_id'])
 
@@ -115,10 +112,6 @@ class ReViewSet(viewsets.ModelViewSet):
         return Review.objects.filter(
             title_id=self.kwargs.get('title_id')
         ).select_related('author')
-        # или вот так, через related names, но тогда тут будет
-        # 2 повторяющихся запроса судя по дебагтулбару
-        # title = self._get_title()
-        # return title.reviews.select_related('author')
 
     def perform_create(self, serializer):
         title = self._get_title()
@@ -130,9 +123,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     pagination_class = FourPerPagePagination
 
-    # Вызывается 2 раза, при переходе по ссылке
-    # (если get_queryset будет, как закоменченый)
-    # http://127.0.0.1:8000/api/v1/titles/5/reviews/6/comments/
     def _get_review(self):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
 
@@ -141,10 +131,6 @@ class CommentViewSet(viewsets.ModelViewSet):
             review__title_id=self.kwargs.get('title_id'),
             review_id=self.kwargs.get('review_id')
         ).select_related('author')
-        # или вот так, через related names, но тогда тут будет
-        # 2 повторяющихся запроса судя по дебагтулбару
-        # review = self._get_review()
-        # return review.coments.select_related('author')
 
     def perform_create(self, serializer):
         review = self._get_review()
