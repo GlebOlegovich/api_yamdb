@@ -47,9 +47,6 @@ class Title(models.Model):
     description = models.TextField(null=True)
     genre = models.ManyToManyField(Genre, through='GenreTitle')
 
-    def get_genre(self):
-        return "\n".join([g.name for g in self.genre.all()])
-
     class Meta:
         ordering = ['id']
         verbose_name_plural = 'Приозведения'
@@ -57,6 +54,10 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_genre(self):
+        ganres = self.genre.values_list('name', flat=True)
+        return list(ganres)
 
 
 class GenreTitle(models.Model):
