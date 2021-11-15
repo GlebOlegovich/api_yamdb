@@ -54,8 +54,11 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@action(detail=True, methods=['GET', 'POST', 'DEL', 'PATCH'])
-class CategoryViewSet(viewsets.ModelViewSet):
+@action(detail=True, methods=['LIST', 'POST', 'DEL'])
+class CategoryViewSet(mixins.ListModelMixin,
+                      mixins.CreateModelMixin,
+                      mixins.DestroyModelMixin,
+                      viewsets.GenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
